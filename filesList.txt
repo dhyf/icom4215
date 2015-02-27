@@ -4,4 +4,6 @@
 //Add all ".v" files to this list
 //helloWorld.v included as reference
 
-helloWorld.v
+//helloWorld.v
+twoByOneMux.v
+twoByOneMuxTest.v
