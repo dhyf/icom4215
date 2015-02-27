@@ -1,0 +1,7 @@
+//To compile: iverilog -o programName.out -c filesList.txt
+//To Run: vvp programName.out
+
+//Add all ".v" files to this list
+//helloWorld.v included as reference
+
+helloWorld.v
