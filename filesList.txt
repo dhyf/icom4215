@@ -5,5 +5,10 @@
 //helloWorld.v included as reference
 
 //helloWorld.v
-twoByOneMux.v
-twoByOneMuxTest.v
+
+//Multiplexers
+Multiplexers/twoByOneMux.v
+Multiplexers/twoByOneMuxTest.v
+//Multiplexers/fourByOneMux.v
+//Multiplexers/fourByOneMuxTest.v
+
