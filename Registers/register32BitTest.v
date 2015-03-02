@@ -10,6 +10,9 @@ module test_32bit_register;
 
 	Register32 reg32 (Q,D,LE,Clr,Clk);
 
+	initial #500 $finish;
+
+
 	//Clock signal
 	initial begin
 		Clk = 1'b0;
@@ -18,7 +21,13 @@ module test_32bit_register;
 		end
 	end
 
-	initial #500 $finish;
+	
+
+	initial fork
+		#200 D = 32'h0;
+		#200 LE = 0;
+		#200 Clr = 1; #203 Clr = 0; #300 D = 32'haaaaffff; #350 LE = 1; #400 Clr = 1; #405 Clr = 0; #425 Clr = 1; #428 Clr = 0; 
+	join
 
 
 	initial begin
@@ -28,18 +37,10 @@ module test_32bit_register;
 		$display("Time Clk Clr LE D Q");
 		$monitor("%d %b %b %b %h %h",$time,Clk,Clr,LE,D,Q);
 		
-		D = 32'h0;
-		LE = 0;
-		Clr = 0; #255 Clr = 1; #260 Clr = 0; #355 Clr = 1;
-
-		repeat (100) #5 begin
-			D = D + 1;
-		end
-
-		fork
-			
-			#245 LE = 1; #275 LE = 0;
-		join
+		
+		//repeat (100) #5 begin
+		//	D = D + 1;
+		//end
 		
 	end
 
