@@ -12,3 +12,8 @@ Multiplexers/twoByOneMuxTest.v
 Multiplexers/fourByOneMux.v
 Multiplexers/fourByOneMuxTest.v
 
+//Registers
+Registers/register32Bit.v
+Registers/register32BitTest.v
+
+
