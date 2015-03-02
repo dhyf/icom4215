@@ -9,6 +9,6 @@
 //Multiplexers
 Multiplexers/twoByOneMux.v
 Multiplexers/twoByOneMuxTest.v
-//Multiplexers/fourByOneMux.v
-//Multiplexers/fourByOneMuxTest.v
+Multiplexers/fourByOneMux.v
+Multiplexers/fourByOneMuxTest.v
 
