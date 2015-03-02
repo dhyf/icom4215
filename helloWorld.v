@@ -1,7 +1,7 @@
 module main;
   initial 
     begin
-      $display("Hello, World");
+      $display("Hello");
       $finish ;
     end
 endmodule
