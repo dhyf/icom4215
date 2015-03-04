@@ -42,7 +42,7 @@ module test_mux_32x1;
 	mux_32x1 mux3 (Y, S, I0, I1, I2, I3, I4, I5, I6, I7, I8, I9, I10, I11, I12, I13, I14, I15, I16, I17, I18, I19, I20, I21, I22, I23, I24, I25, I26, I27, I28, I29, I30, I31);
 
 	initial begin
-		S = 2'b00;
+		S = 5'b00;
 
 		I0 = 32'd0;
 		I1 = 32'd1;

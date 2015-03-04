@@ -18,5 +18,5 @@ Registers/register32Bit.v
 Registers/register32BitTest.v
 
 //Decoders
-//Decoders/5by32Decoder.v
+Decoders/5by32Decoder.v
 
