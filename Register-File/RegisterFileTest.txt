@@ -1,0 +1,5 @@
+//Register File Test
+registerFile.v
+../Multiplexers/32ByOneMux.v
+../Registers/register32Bit.v
+../Decoders/5by32Decoder.v
