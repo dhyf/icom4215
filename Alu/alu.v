@@ -1,11 +1,14 @@
-module alu (output [31:0] Y, [3:0] carryFlag, input [3:0] S, input[31:0] A, B, input sign);
+module alu(output [31:0] Y, output [3:0] carryFlag, input [3:0] S,input sign, input [31:0] A,B);
+
+
+output wire carry;
+
 
 
 always@ (S)
 	case (S)
 	4'b0000: Y <= B;
-	4'b0001: Y <= A + B;
-	4'b0010: Y <= A - B;
+	4'b0001: assign{carry,Y} = (A + B);
 	4'b0011: Y <= A * B;
 	4'b0100: Y <= A / B;
 	4'b0101: Y <= A & B;
