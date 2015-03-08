@@ -1,6 +1,6 @@
 module register_file (
-	output reg [31:0] dataRS,
-	output reg [31:0] dataRT,
+	output wire [31:0] dataRS,
+	output wire [31:0] dataRT,
 	input [4:0] RD,
 	input [4:0] RS,
 	input [4:0] RT,
@@ -8,40 +8,40 @@ module register_file (
 	input RW,
 	input Clk);
 
-	reg [31:0] LE_RD;
+	wire [31:0] LE_RD;
 
-	reg [31:0] Q0;
-	reg [31:0] Q1;
-	reg [31:0] Q2;
-	reg [31:0] Q3;
-	reg [31:0] Q4;
-	reg [31:0] Q5;
-	reg [31:0] Q6;
-	reg [31:0] Q7;
-	reg [31:0] Q8;
-	reg [31:0] Q9;
-	reg [31:0] Q10;
-	reg [31:0] Q11;
-	reg [31:0] Q12;
-	reg [31:0] Q13;
-	reg [31:0] Q14;
-	reg [31:0] Q15;
-	reg [31:0] Q16;
-	reg [31:0] Q17;
-	reg [31:0] Q18;
-	reg [31:0] Q19;
-	reg [31:0] Q20;
-	reg [31:0] Q21;
-	reg [31:0] Q22;
-	reg [31:0] Q23;
-	reg [31:0] Q24;
-	reg [31:0] Q25;
-	reg [31:0] Q26;
-	reg [31:0] Q27;
-	reg [31:0] Q28;
-	reg [31:0] Q29;
-	reg [31:0] Q30;
-	reg [31:0] Q31;
+	wire [31:0] Q0;
+	wire [31:0] Q1;
+	wire [31:0] Q2;
+	wire [31:0] Q3;
+	wire [31:0] Q4;
+	wire [31:0] Q5;
+	wire [31:0] Q6;
+	wire [31:0] Q7;
+	wire [31:0] Q8;
+	wire [31:0] Q9;
+	wire [31:0] Q10;
+	wire [31:0] Q11;
+	wire [31:0] Q12;
+	wire [31:0] Q13;
+	wire [31:0] Q14;
+	wire [31:0] Q15;
+	wire [31:0] Q16;
+	wire [31:0] Q17;
+	wire [31:0] Q18;
+	wire [31:0] Q19;
+	wire [31:0] Q20;
+	wire [31:0] Q21;
+	wire [31:0] Q22;
+	wire [31:0] Q23;
+	wire [31:0] Q24;
+	wire [31:0] Q25;
+	wire [31:0] Q26;
+	wire [31:0] Q27;
+	wire [31:0] Q28;
+	wire [31:0] Q29;
+	wire [31:0] Q30;
+	wire [31:0] Q31;
 
 	decoder_5_32 decoderRD (LE_RD,RD);
 
