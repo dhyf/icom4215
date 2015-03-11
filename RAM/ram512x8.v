@@ -26,15 +26,20 @@ always @ (memFuncActive, readWrite)
 
 if(memFuncActive) begin
 	
+	$display("Memory active");
+
 	memFuncComplete = 0;
+	$display("Memory Function Complete: %b", memFuncComplete);
 
 
 	if(readWrite) begin
 		//Writing a word (4 bytes)
 		if(dataSize == 3) begin
-			assign currentAddress = address;
+			$display("Writing a word");
+			currentAddress = address;
 			for(i = 3; i >= 0; i = i - 1) begin
 				Mem[currentAddress] = dataByte[i];
+				$display("Writing byte %h in address %d", dataByte[i], currentAddress);
 				currentAddress = currentAddress + 1;
 			end
 		end
@@ -42,16 +47,21 @@ if(memFuncActive) begin
 
 		//Writing a halfword (2 bytes)
 		if(dataSize == 1) begin
-			assign currentAddress = address;
-
+			$display("Writing a halfword");
+			currentAddress = address;
 			for(i = 1; i >= 0; i = i - 1) begin
-				Mem[currentAddress] = dataByte[i];
+				Mem[currentAddress] = dataByte[i+2];
+				$display("Writing byte %h in address %d", dataByte[i], currentAddress);
 				currentAddress = currentAddress + 1;
 			end			
 		end
 
 		//Writing a single byte
-		else Mem[address] = dataByte[3];
+		if(dataSize == 0) begin
+			$display("Writing a byte");
+			Mem[address] = dataByte[3];
+			$display("Writing byte %h in address %d", dataByte[3], address);
+		end
 
 		//Writing complete
 		memFuncComplete <= 1;
@@ -61,31 +71,42 @@ if(memFuncActive) begin
 		
 		//Reading a word (4 bytes)
 		if(dataSize == 3) begin
-			dataOut[31:24] = Mem[address];
-			dataOut[23:16] = Mem[address + 1];
-			dataOut[15:8] = Mem[address + 2];
-			dataOut[7:0] = Mem[address + 3];
+			$display("Reading a word");
+			$display("Reading word byte 0: %h", Mem[address+3]);
+			dataOut[31:24] = Mem[address + 3];
+			$display("Reading word byte 1: %h", Mem[address+2]);
+			dataOut[23:16] = Mem[address + 2];
+			$display("Reading word byte 2: %h", Mem[address+1]);
+			dataOut[15:8] = Mem[address + 1];
+			$display("Reading word byte 3: %h", Mem[address]);
+			dataOut[7:0] = Mem[address];
 		end
 
 		//Reading a halfword (2 bytes)
 		if(dataSize == 1) begin
+			$display("Reading a halfword");
 			// dataOut[31:24] = 8'b0;
 			// dataOut[23:16] = 8'b0;
-			dataOut[15:8] = Mem[address];
-			dataOut[7:0] = Mem[address + 1];
+			$display("Reading halfword byte 0: %h", Mem[address+1]);
+			dataOut[15:8] = Mem[address + 1];
+			$display("Reading halfword byte 1: %h", Mem[address]);
+			dataOut[7:0] = Mem[address];
 		end
 
 		//Reading a single byte
-		else begin
+		if(dataSize == 0) begin
+			$display("Reading a byte");
 			// dataOut[31:24] = 8'b0;
 			// dataOut[23:16] = 8'b0;
 			// dataOut[15:8] = 8'b0;
+			$display("Reading byte 0: %h", Mem[address]);
 			dataOut[7:0] = Mem[address];
 		end
 
 	end
 
 	memFuncComplete = 1;
+	$display("Memory Function Complete: %b", memFuncComplete);
 
 end
 
