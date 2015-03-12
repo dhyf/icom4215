@@ -17,18 +17,18 @@ reg signed[3:0] opposite;
 
 initial begin
 	carryFlags = 4'b0;
-	if(sign[1])
+	if(sign[0])
 	   begin
 	   		assign{C,result} = A - B;
 	   end
 	else 
-	begin
-		assign{C,result} = A + B;
+		begin
+			assign{C,result} = A + B;
 
-	end
+		end
 	
 
-		if(sign)
+		if(sign[1])
 		begin
 		carryFlags[1] = result[3];
 		carryFlags[3] = C;
