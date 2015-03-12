@@ -1,4 +1,4 @@
-module adder(output reg signed [3:0] result, output reg[3:0] carryFlags, input signed [3:0] A,B, input sign);
+module adder(output reg signed [3:0] result, output reg[3:0] carryFlags, input signed [3:0] A,B, input[1:0] sign);
 
 
 //carryFlags(0) = V
@@ -6,11 +6,27 @@ module adder(output reg signed [3:0] result, output reg[3:0] carryFlags, input s
 //carryFlags(2) = Z
 //carryFlags(3) = C
 
+//Combinaciones de la variable sign:
+//00 -> suma unsigned
+//01 -> suma signed
+//10 -> resta unsigned
+//11 -> resta signed
+
 reg C;
+reg signed[3:0] opposite;
 
 initial begin
 	carryFlags = 4'b0;
-	assign{C,result} = A + B;
+	if(sign[1])
+	   begin
+	   		assign{C,result} = A - B;
+	   end
+	else 
+	begin
+		assign{C,result} = A + B;
+
+	end
+	
 
 		if(sign)
 		begin
