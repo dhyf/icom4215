@@ -2,19 +2,20 @@ module adderTest;
 
 
 	
-	wire [31:0] result;
-	wire carry;
+	wire[3:0] result;
+	wire [3:0] C;
 
-	adder suma(result,carry,32'hFFFFFFFF,32'd1);
+	adder suma(result,C,-4'd5,-4'd8,1);
+
 
 	initial begin
 		
 	
 		$display ("\nAdder Test");
 			
-		$display ("result	carry");
+		$display ("result	V   N   Z   C       A       B");
 
-		$monitor ("%b   %b", result, carry);
+		$monitor ("%b       %b  %b   %b   %b    %d    %d", result, C[0], C[1], C[2], C[3], -(4'd10), 4'd12);
 
 
 	end
