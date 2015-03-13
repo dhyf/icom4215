@@ -34,11 +34,11 @@ always @ (operation, A, B, sign) begin
 	//Pasa valor B a salida
 	4'b0000: Y = B;
 	//Sumar o restar (con y sin signo)
-	4'b0001: #1 Y = addSubResult;
+	4'b0001: assign Y = addSubResult;
 	//Multiplicacion (con y sin signo)
-	4'b0010: #1 begin outHI = productHI; outLO = productLO; end
+	4'b0010: begin assign outHI = productHI; assign outLO = productLO; end
 	//Division (con y sin signo)
-	4'b0011: #1 begin outHI = divisionHI; outLO = divisionLO; end
+	4'b0011: begin assign outHI = divisionHI; assign outLO = divisionLO; end
 	//AND logico
 	4'b0100: Y <= A & B;
 	//OR logico
@@ -52,7 +52,7 @@ always @ (operation, A, B, sign) begin
 	//Shift aritmetico a la derecha
 	4'b1001: Y = $signed(B) >>> A;
 	//LUI
-	4'b1010: Y = luiOutput;
+	4'b1010: assign Y = luiOutput;
 	default: Y = Y;
 	endcase
 
