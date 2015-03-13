@@ -33,7 +33,7 @@ always@ (operation, A, B, sign)
 
 	case (operation)
 	//Pasa valor B a salida
-	4'b0000: Y <= B;
+	4'b0000: begin Y <= B; $display("here"); end
 	//Sumar o restar (con y sin signo)
 	4'b0001: Y = addSubResult;
 	//Multiplicacion (con y sin signo)
