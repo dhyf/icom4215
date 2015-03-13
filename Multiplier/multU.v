@@ -1,5 +1,6 @@
-module multU(output reg [31:0] productHI, productLO, input [1:0] sign,
-            input [31:0] multiplier,multiplicand);
+module multU(output reg [31:0] productHI, productLO, // Registers where the multiplication result will be stored 
+             input [1:0] sign, // Sign signal that will come from the Control Unit
+             input [31:0] multiplier,multiplicand); // Inputs for the multiplication algorithm
   
    
    reg [63:0]          product;
@@ -14,13 +15,15 @@ module multU(output reg [31:0] productHI, productLO, input [1:0] sign,
   //We can't change the inputs so we store this values in temporary variables
     invMultiplier = multiplier;  
     invMultiplicand = multiplicand;
+
      //Checks if both the multiplicand and the multiplier are negative numbers
      //If they are, take the 2's complement of both and then pass them as parameters for the multiplication algorithm
         if((sign[1]==1) && (multiplicand[31]==1) && (multiplier[31]==1))
          begin
             invMultiplier = -(invMultiplier);
             invMultiplicand = -(invMultiplicand);
-         end    
+         end
+
      //Checks if the multiplicand is a negative number
      //If it is, take the 2's complement and pass it as a parameter for the multiplication algorithm
      //Since in order for the program to enter this if-statement only the multiplicand is negative so we don't change the multiplier
@@ -28,6 +31,7 @@ module multU(output reg [31:0] productHI, productLO, input [1:0] sign,
          begin
             invMultiplicand = -(invMultiplicand);
          end 
+
      //Checks if the multiplier is a negative number 
      //If it is, take the 2's complement and pass it as a parameter for the multiplication algorithm
      //Since in order for the program to enter this if-statement only the multiplier is negative so we don't change the multiplicand
@@ -62,7 +66,7 @@ module multU(output reg [31:0] productHI, productLO, input [1:0] sign,
                  begin
                     product = -product;
                  end
-        // The resulting product will be stored in productHI & productLO, respectively containing the MSW and the LSW
+        // The resulting product will be stored in productHI & productLO, respectively containing the MSW and the LSW of product
           productHI = product[63:32];
           productLO = product[31:0];
   end   
