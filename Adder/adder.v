@@ -17,7 +17,7 @@ module adder(output reg [31:0] result, output reg[3:0] carryFlags, input [31:0] 
 reg C;
 
 
-initial begin
+always @ (A,B,sign) begin
 	//Clear the bits of the flags for the new operation.
 	carryFlags = 4'b0;
 
