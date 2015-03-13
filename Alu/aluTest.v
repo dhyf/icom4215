@@ -10,7 +10,8 @@ module test_alu;
 	wire [31:0] Y, outLO, outHI;
 	wire [3:0] carryFlags;
 
-	alu alu1 (Y,outHI,outLO,carryFlags,sign,operation,A,B);	
+
+	alu alu1 (Y,outHI,outLO,carryFlags,4'd0,2'd0,32'd4,32'd8);	
 
 	// initial fork
 	// 	//Pasa valor B a salida
@@ -40,12 +41,9 @@ module test_alu;
 
 	initial begin
 
-		#0 operation=4'b1111; #0 A=32'hFFFFFFFF; #0 B=32'hAAAAAAAA; #0 sign= 2'b00;
-		#5 operation=4'b0000; #5 A=32'hFFFFFFFF; #5 B=32'hAAAAAAAA; #5 sign= 2'b00;
-
 		$display("\nALU Test");
 		$display("operation A B sign Y outLO outHI carryFlags");
-		$monitor("%b %h %h %b %h %h %h %b",operation,A,B,sign,Y,outLO,outHI,carryFlags);		
+		$monitor("%b %h %h %b %h",4'd0,32'd4,32'd8,2'd0,Y);		
 		
 	end
 
