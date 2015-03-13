@@ -13,7 +13,7 @@ module divU(output reg [31:0] divisionHIRes, // Register where the quotioent of 
     reg [31:0] invDividend;
 
 
-   always @ (dividend, divisor) begin
+   initial begin
       
       counter = 32'd0;
      // We can't change the inputs so we store this values in temporary variables

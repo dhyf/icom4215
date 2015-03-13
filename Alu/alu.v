@@ -23,9 +23,25 @@ module alu(output reg  [31:0] Y, outHI, outLO, output [3:0] carryFlag, input [3:
 
   	//Instances of modules for multiplication, division, addition, substraction and LUI
   	multU mult(productHI, productLO, sign, A, B);
+  	initial begin
+  		$display("muu");
+  		$display(productHI,"   ",productLO);
+  	end
   	divU div(divisionHI, divisionLO, sign, A, B);
+  	initial begin
+  		$display(divisionHI);
+  		$display("blah");
+  	end
   	adder addSub(addSubResult,carryFlag,A,B,sign);
+  	initial begin
+  		$display(addSubResult);
+  		$display("?????");
+  	end
   	lui luiModule(luiOutput,A);
+  	initial begin
+  		$display(luiOutput);
+  		$display("vaka");
+  	end
 
 
 

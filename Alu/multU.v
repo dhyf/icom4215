@@ -7,7 +7,7 @@ module multU(output reg [31:0] productHI, productLO, input [1:0] sign,
    reg [31:0] invMultiplier;
    reg [31:0] invMultiplicand;
    integer       i;
- always @ (multiplier, multiplicand) begin
+ initial begin
   
   //initialize
     product = 64'd0;
