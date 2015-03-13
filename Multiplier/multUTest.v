@@ -8,7 +8,7 @@ module test_multU;
   wire [31:0] productHI;
   wire [31:0] productLO;
   
-  multU mult(productHI, productLO,32'd176,32'd27);
+  multU mult(productHI, productLO,2'b10, 32'd20,-32'd30);
 
   initial #100 begin
     //multiplier = 32'd4;
@@ -17,8 +17,8 @@ module test_multU;
 
     $display ("\n\tUnsigned Multiplication Test");
       
-    $display ("\n\tproductHI\tproductLO   \tmultiplier \tmultiplicand");
+    $display ("\n\tproductHI\tproductLO");
 
-    $monitor ("\n %d  \t%d      \t%b      \t%b", productHI, productLO, 4'd4, 4'd4);
+    $monitor ("\n %h  \t%h", productHI, productLO);
   end
 endmodule
