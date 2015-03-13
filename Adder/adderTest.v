@@ -2,10 +2,10 @@ module adderTest;
 
 
 	
-	wire[3:0] result;
+	wire[31:0] result;
 	wire [3:0] C;
 
-	adder suma(result,C,-4'd4,4'd2,11);
+	adder suma(result,C,-32'd15,32'h1,2'b10);
 
 
 	initial begin
