@@ -20,6 +20,13 @@ module divU(output reg [31:0] divisionHIRes, // Register where the quotioent of 
       invDivisor = divisor;
       invDividend = dividend;
 
+    if(divisor == 32'h0) begin
+      //Trap will be generated here in case of division by 0
+      $display("Trap: Division by 0");
+    end
+
+    else begin
+
      //Checks if both the dividend and the diveder are negative numbers      
      //If they are, take the 2's complement of both and then pass them as parameters for the division algorithm
         if((sign[1]==1) && (dividend[31]==1) && (divisor[31]==1))
@@ -67,6 +74,8 @@ module divU(output reg [31:0] divisionHIRes, // Register where the quotioent of 
       // The quotient will be stored in divisionLOQuo and the residue will be stored in divisionHIRes
       divisionHIRes = numToSub;
       divisionLOQuo = counter;
+
+    end
 
     end
 endmodule
