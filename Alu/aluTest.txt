@@ -1,0 +1,5 @@
+//ALU Test
+../Multiplier/multU.v
+../Adder/adder.v
+../Divider/divU.v
+alu.v
