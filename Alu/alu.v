@@ -18,8 +18,8 @@ module alu(output reg  [31:0] Y, outHI, outLO, output [3:0] carryFlag, input [3:
 
 	//Combinaciones de la variable sign:
 	//00 -> suma unsigned
-	//01 -> suma signed
-	//10 -> resta unsigned
+	//01 -> resta unsigned
+	//10 -> suma signed
 	//11 -> resta signed
   
   	//Instances of modules for multiplication, division, addition, substraction and LUI
@@ -53,7 +53,7 @@ always @ (operation, A, B, sign) begin
 	4'b1001: Y = $signed(B) >>> A;
 	//LUI
 	4'b1010: assign Y = luiOutput;
-	default: Y = Y;
+	default: Y = Y; //Cualquier opcion diferente devuelve la misma entrada
 	endcase
 
 end

@@ -1,8 +1,12 @@
 module decoder_5_32 (output reg [31:0] D, input [4:0] S);
 
+//Input (S): 5 bit selector (32 options), 2^5=32
+//Output (D): 32 bit, Selected line 1, other lines 0
+
 always @ (D, S)
 
 	casez (S)
+		//Setting all output lines to 0, selected bit in D set to 1
 		5'b00000: begin D = 32'b0; D[0] = 1; end
 		5'b00001: begin D = 32'b0; D[1] = 1; end
 		5'b00010: begin D = 32'b0; D[2] = 1; end

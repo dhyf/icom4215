@@ -8,8 +8,8 @@ module adder(output reg [31:0] result, output reg[3:0] carryFlags, input [31:0] 
 
 //Combinaciones de la variable sign:
 //00 -> add unsigned
-//01 -> add signed
-//10 -> substract unsigned
+//01 -> substract unsigned
+//10 -> add signed
 //11 -> substract signed
 
 

@@ -1,11 +1,11 @@
 module register_file (
-	output wire [31:0] dataRS,
-	output wire [31:0] dataRT,
-	input [4:0] RD,
-	input [4:0] RS,
-	input [4:0] RT,
-	input [31:0] dataRD,
-	input RW,
+	output wire [31:0] dataRS, //Output: Register Source (data, 32bit)
+	output wire [31:0] dataRT, //Output: Register Target (data, 32bit)
+	input [4:0] RD, //Register RD selection, 5 bits, 32 options, register to write to
+	input [4:0] RS, //Register RS selection, 5 bits, 32 options, register to read
+	input [4:0] RT, //Register RT selection, 5 bits, 32 options, register to read
+	input [31:0] dataRD, // Input: Register Destination (data, 32bit)
+	input RW, //Read / write signal, 1=Write, 0=Read
 	input Clk);
 
 	wire [31:0] LE_RD;
@@ -45,6 +45,8 @@ module register_file (
 
 	decoder_5_32 decoderRD (LE_RD,RD);
 
+	//32-bit register bank
+	//Register 0 with Clr = 0, data is always 0
 	Register32 register0 (Q0,dataRD,LE_RD[0] && RW,1,Clk);
 	Register32 register1 (Q1,dataRD,LE_RD[1] && RW,0,Clk);
 	Register32 register2 (Q2,dataRD,LE_RD[2] && RW,0,Clk);
