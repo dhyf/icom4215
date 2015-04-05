@@ -53,6 +53,8 @@ always @ (operation, A, B, sign) begin
 	4'b1001: Y = $signed(B) >>> A;
 	//LUI
 	4'b1010: assign Y = luiOutput;
+	//add 4
+	4'b1011: Y = B + 32'd4;
 	default: Y = Y; //Cualquier opcion diferente devuelve la misma entrada
 	endcase
 
