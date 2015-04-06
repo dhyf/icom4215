@@ -1,4 +1,6 @@
-module controlUnit (output reg regFileRW,
+module controlUnit (output reg signExtend, //Sign extension for imm16 1=y 0=n, x otherwise
+					output reg clearPC, //Used for reset
+					output reg regFileRW,
 					output reg [4:0] regFileRD,regFileRS,regFileRT,
 					output reg [1:0] aluSign,
 					output reg [3:0] aluOperation,
@@ -33,14 +35,19 @@ initial begin
 end
 
 always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableInterrupt, state) begin
+	
+	//Reset state
 	if(state == 9'd0) begin
 		$display("Inside state 0");
 		nextState=9'd1;
+		clearPC=1;
 	end
 
+	//Begin FETCH states 1-4
 	else if(state == 9'd1) begin
 		$display("Inside state 1");
 		nextState=9'd2;
+		clearPC=0;
 		aluOperation=4'b0000;
 		muxSignals=2'b11;
 		regFileEnable=0;
@@ -61,23 +68,17 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		pcEnable=1;
 		marEnable=0;
 		mdrEnable=0;
-		ramRW=1;
+		ramRW=0;
 		ramMFA=1;
 	end
 
 	else if(state == 9'd3) begin
+		pcEnable=0;
 		$display("Inside state 3");
 		$display("ramMFC= %b",ramMFC);
 		if(ramMFC) begin
 			$display("Going to state 4");
 			nextState=9'd4;
-			regFileEnable=0;
-			irEnable=0;
-			pcEnable=0;
-			marEnable=0;
-			mdrEnable=0;
-			ramRW=1;
-			ramMFA=1;
 		end
 		else nextState=9'd3;
 	end
@@ -90,10 +91,11 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		pcEnable=0;
 		marEnable=0;
 		mdrEnable=0;
-		ramRW=1;
-		ramMFA=1;
+		ramMFA=0;
 	end
+	//End FETCH states 1-4
 
+	//Begin Decode state (255)
 	else if(state == 9'd255) begin
 		$display("Inside state 255 (DECODE)");
 		$display("Opcode = %b", opcode);
@@ -104,22 +106,80 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 				$display("ADDU: Inside function code 100000");
 				nextState=9'd5;
 			end
+			if(functionCode == 6'b100001) begin
+				$display("ADD: Inside function code 100001");
+				nextState=9'd6;
+			end
+			if(functionCode == 6'b100010) begin
+				nextState=9'd7; //subu
+			end
+			if(functionCode == 6'b100011) begin
+				nextState=9'd8; //sub
+			end
+			if(functionCode == 6'b011010) begin
+				nextState=9'd11; //divu
+			end
+			if(functionCode == 6'b011011) begin
+				nextState=9'd12; //div
+			end
+			if(functionCode == 6'b011000) begin
+				nextState=9'd10; //multu
+			end
+			if(functionCode == 6'b011001) begin
+				nextState=9'd9; //mult
+			end
+			if(functionCode == 6'b100100) begin
+				nextState=9'd13; //and
+			end
+			if(functionCode == 6'b100101) begin
+				nextState=9'd14; //or
+			end
+			if(functionCode == 6'b100110) begin
+				nextState=9'd15; //xor
+			end
+			if(functionCode == 6'b100111) begin
+				nextState=9'd25; //nor
+			end
+			if(functionCode == 6'b000000) begin
+				nextState=9'd17; //sll
+			end
+			if(functionCode == 6'b000011) begin
+				nextState=9'd18; //sra
+			end
+			if(functionCode == 6'b000010) begin
+				nextState=9'd16; //srl
+			end
 			else begin
 				$display("Invalid instruction: function code not found"); //function code not found
 				nextState = 9'd1;
 			end
+		end
+		if(opcode == 6'b001000) begin
+			nextState = 9'd21; //addi
+		end
+		if(opcode == 6'b001001) begin
+			nextState = 9'd20; //addiu
+		end
+		if(opcode == 6'b001100) begin
+			nextState = 9'd22; //andi
+		end
+		if(opcode == 6'b001111) begin
+			nextState = 9'd19; //lui
 		end
 		else begin
 			$display("Invalid instruction: opcode not found"); //Opcode not found
 			nextState = 9'd1;
 		end
 	end
+	//End Decode state (255)
 
+	//Add unsigned
 	else if(state == 9'd5) begin
 		$display("ADDU: Inside state 5");
 		nextState = 9'd1;
 		aluOperation=4'b0001;
 		muxSignals=2'b00;
+		muxSignals3=0;
 		regFileRS = instruction[25:21];
 		regFileRT = instruction[20:16];
 		regFileRD = instruction[15:11];
@@ -132,6 +192,338 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		ramMFA=0;
 		aluSign=2'b00;
 	end
+
+
+	//Add signed (generates overflow trap)
+	else if(state == 9'd6) begin
+		$display("ADD: Inside state 6");
+		nextState = 9'd1;
+		aluOperation=4'b0001;
+		muxSignals=2'b00;
+		muxSignals3=0;
+		regFileRS = instruction[25:21];
+		regFileRT = instruction[20:16];
+		regFileRD = instruction[15:11];
+		regFileEnable=1;
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=0;
+		regFileRW=1;
+		ramMFA=0;
+		aluSign=2'b10;
+	end
+
+	//Check for overflow
+	else if(state == 9'd254) begin
+		if(aluCarryFlags[0]) begin
+			ramAddress = 9'd448; //Address for overflow trap
+			nextState=9'd3;
+			muxSignals=2'b11;
+			regFileEnable=0;
+			irEnable=0;
+			pcEnable=1;
+			marEnable=0;
+			mdrEnable=0;
+			ramRW=0;
+			ramMFA=1;
+		end
+	end
+
+	//Subtract unsigned
+	else if(state == 9'd7) begin
+		$display("SUBU: Inside state 7");
+		nextState = 9'd1;
+		aluOperation=4'b0001;
+		muxSignals=2'b00;
+		muxSignals3=0;
+		regFileRS = instruction[25:21];
+		regFileRT = instruction[20:16];
+		regFileRD = instruction[15:11];
+		regFileEnable=1;
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=0;
+		regFileRW=1;
+		ramMFA=0;
+		aluSign=2'b01;
+	end
+
+	//Subtract signed
+	else if(state == 9'd8) begin
+		$display("SUB: Inside state 8");
+		nextState = 9'd1;
+		aluOperation=4'b0001;
+		muxSignals=2'b00;
+		muxSignals3=0;
+		regFileRS = instruction[25:21];
+		regFileRT = instruction[20:16];
+		regFileRD = instruction[15:11];
+		regFileEnable=1;
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=0;
+		regFileRW=1;
+		ramMFA=0;
+		aluSign=2'b11;
+	end
+
+	//Mult signed
+	else if(state == 9'd9) begin
+		nextState = 9'd1;
+		aluOperation = 4'b0010;
+		muxSignals = 2'b00;
+		regFileRS = instruction[25:21];
+		regFileRT = instruction[20:16];
+		regFileEnable=1;
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=0;
+		ramMFA=0;
+		aluSign[1] = 1;
+		regFileRW = 0;
+	end
+
+	//Mult unsigned
+	else if(state == 9'd10) begin
+		nextState = 9'd1;
+		aluOperation = 4'b0010;
+		muxSignals = 2'b00;
+		regFileRS = instruction[25:21];
+		regFileRT = instruction[20:16];
+		regFileEnable=1;
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=0;
+		ramMFA=0;
+		aluSign[1] = 0;
+		regFileRW = 0;
+	end
+
+	//Div unsigned
+	else if(state == 9'd11) begin
+		nextState = 9'd1;
+		aluOperation = 4'b0011;
+		muxSignals = 2'b00;
+		regFileRS = instruction[25:21];
+		regFileRT = instruction[20:16];
+		regFileEnable=1;
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=0;
+		ramMFA=0;
+		aluSign[1] = 0;
+		regFileRW = 0;
+	end
+
+	//Div signed
+	else if(state == 9'd12) begin
+		nextState = 9'd1;
+		aluOperation = 4'b0011;
+		muxSignals = 2'b00;
+		regFileRS = instruction[25:21];
+		regFileRT = instruction[20:16];
+		regFileEnable=1;
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=0;
+		ramMFA=0;
+		aluSign[1] = 1;
+		regFileRW = 0;
+	end
+
+	//And
+	else if(state == 9'd13) begin
+		nextState = 9'd1;
+		aluOperation = 4'b0100;
+		muxSignals = 2'b00;
+		regFileRS = instruction[25:21];
+		regFileRT = instruction[20:16];
+		regFileRD = instruction[15:11];
+		regFileEnable = 1;
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=0;
+		ramMFA=0;
+		muxSignals3=0;
+		muxSignals4=0;
+		regFileRW=1;
+	end
+
+	//Or
+	else if(state == 9'd14) begin
+		nextState = 9'd1;
+		aluOperation = 4'b0101;
+		muxSignals = 2'b00;
+		regFileRS = instruction[25:21];
+		regFileRT = instruction[20:16];
+		regFileRD = instruction[15:11];
+		regFileEnable = 1;
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=0;
+		ramMFA=0;
+		muxSignals3=0;
+		muxSignals4=0;
+		regFileRW=1;
+	end
+
+	//Xor
+	else if(state == 9'd15) begin
+		nextState = 9'd1;
+		aluOperation = 4'b1100;
+		muxSignals = 2'b00;
+		regFileRS = instruction[25:21];
+		regFileRT = instruction[20:16];
+		regFileRD = instruction[15:11];
+		regFileEnable = 1;
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=0;
+		ramMFA=0;
+		muxSignals3=0;
+		muxSignals4=0;
+		regFileRW=1;
+	end
+
+	//Logic shift right
+	else if(state == 9'd16) begin
+		nextState = 9'd1;
+		aluOperation = 4'b0111;
+		regFileRS = instruction[25:21];
+		regFileRD = instruction[15:11];
+		regFileEnable=1;
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=0;
+		ramMFA=0;
+		muxSignals3=0;
+		muxSignals4=0;
+		regFileRW=1;
+	end
+
+	//Logic shift left
+	else if(state == 9'd17) begin
+		nextState = 9'd1;
+		aluOperation = 4'b1000;
+		regFileRS = instruction[25:21];
+		regFileRD = instruction[15:11];
+		regFileEnable=1;
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=0;
+		ramMFA=0;
+		muxSignals3=0;
+		muxSignals4=0;
+		regFileRW=1;
+	end
+
+	//Arithmetic shift right
+	else if(state == 9'd18) begin
+		nextState = 9'd1;
+		aluOperation = 4'b1001;
+		regFileRS = instruction[25:21];
+		regFileRD = instruction[15:11];
+		regFileEnable=1;
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=0;
+		ramMFA=0;
+		muxSignals3=0;
+		muxSignals4=0;
+		regFileRW=1;
+	end
+
+	//LUI
+	else if(state == 9'd19) begin
+		nextState = 9'd1;
+		aluOperation = 4'b1010;
+		regFileRS = instruction[25:21];
+		regFileRD = instruction[25:21];
+		regFileEnable=1;
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=0;
+		ramMFA=0;
+		muxSignals3=0;
+		muxSignals4=0;
+		regFileRW=1;
+		signExtend = 0;
+	end
+
+	//Add imm16 unsigned
+	else if(state == 9'd20) begin
+		nextState = 9'd1;
+		aluOperation = 4'b0001;
+		muxSignals = 2'b01;
+		regFileRS = instruction[25:21];
+		regFileRD = instruction[20:16];
+		regFileEnable=1;
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=0;
+		ramMFA=0;
+		aluSign = 2'b10;
+		muxSignals3=0;
+		muxSignals4=0;
+		regFileRW=1;
+		signExtend = 1;
+	end
+
+	//Add imm16 signed
+	else if(state == 9'd21) begin
+		nextState = 9'd1;
+		aluOperation = 4'b0001;
+		muxSignals = 2'b01;
+		regFileRS = instruction[25:21];
+		regFileRD = instruction[20:16];
+		regFileEnable=1;
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=0;
+		ramMFA=0;
+		aluSign = 2'b10;
+		muxSignals3=0;
+		muxSignals4=0;
+		regFileRW=1;
+		signExtend = 1;
+	end
+
+	//ANDI (imm16)
+	else if(state == 9'd22) begin
+		nextState = 9'd1;
+		aluOperation = 4'b0001;
+		muxSignals = 2'b01;
+		regFileRS = instruction[25:21];
+		regFileRD = instruction[20:16];
+		regFileEnable=1;
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=0;
+		ramMFA=0;
+		aluSign = 2'b10;
+		muxSignals3=0;
+		muxSignals4=0;
+		regFileRW=1;
+		signExtend = 1;
+	end
+
 
 end
 

@@ -10,6 +10,8 @@ module test_control_unit;
 	reg Clk;
 
 	//Outputs
+	wire signExtend;
+	wire clearPC;
 	wire regFileRW;
 	wire [4:0] regFileRD, regFileRS, regFileRT;
 	wire [1:0] aluSign;
@@ -24,7 +26,7 @@ module test_control_unit;
 	wire muxSignals3; //Mux selector to load HI/LO registers in mult and div
 	wire muxSignals4; //Mux selector for imm16; unsigned = 0; sign ext = 1
 
-	controlUnit cu (regFileRW,regFileRD,regFileRS,regFileRT,
+	controlUnit cu (signExtend,clearPC,regFileRW,regFileRD,regFileRS,regFileRT,
 		aluSign,aluOperation,ramDataSize,ramMFA,ramRW,
 		ramAddress,regFileEnable,pcEnable,irEnable,marEnable,
 		mdrEnable,muxSignals,muxSignals2,muxSignals3,
