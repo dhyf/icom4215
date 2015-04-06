@@ -1,4 +1,5 @@
-module controlUnit (output reg signExtend, //Sign extension for imm16 1=y 0=n, x otherwise
+module controlUnit (output reg trapMux;
+					output reg signExtend, //Sign extension for imm16 1=y 0=n, x otherwise
 					output reg clearPC, //Used for reset
 					output reg regFileRW,
 					output reg [4:0] regFileRD,regFileRS,regFileRT,
@@ -197,7 +198,7 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 	//Add signed (generates overflow trap)
 	else if(state == 9'd6) begin
 		$display("ADD: Inside state 6");
-		nextState = 9'd1;
+		nextState = 9'd254;
 		aluOperation=4'b0001;
 		muxSignals=2'b00;
 		muxSignals3=0;
@@ -209,7 +210,7 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		pcEnable=0;
 		marEnable=0;
 		mdrEnable=0;
-		regFileRW=1;
+		regFileRW=0;
 		ramMFA=0;
 		aluSign=2'b10;
 	end
@@ -219,14 +220,19 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		if(aluCarryFlags[0]) begin
 			ramAddress = 9'd448; //Address for overflow trap
 			nextState=9'd3;
-			muxSignals=2'b11;
 			regFileEnable=0;
 			irEnable=0;
-			pcEnable=1;
+			pcEnable=0;
 			marEnable=0;
 			mdrEnable=0;
 			ramRW=0;
 			ramMFA=1;
+			trapMux=1;
+		end
+		else begin
+			nextState = 9'd1;
+			regFileEnable=1;
+			regFileRW=1;
 		end
 	end
 
@@ -250,10 +256,10 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		aluSign=2'b01;
 	end
 
-	//Subtract signed
+	//Subtract signed (generates overflow)
 	else if(state == 9'd8) begin
 		$display("SUB: Inside state 8");
-		nextState = 9'd1;
+		nextState = 9'd254;
 		aluOperation=4'b0001;
 		muxSignals=2'b00;
 		muxSignals3=0;
@@ -265,7 +271,7 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		pcEnable=0;
 		marEnable=0;
 		mdrEnable=0;
-		regFileRW=1;
+		regFileRW=0;
 		ramMFA=0;
 		aluSign=2'b11;
 	end
@@ -484,9 +490,9 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		signExtend = 1;
 	end
 
-	//Add imm16 signed
+	//Add imm16 signed (generates overflow)
 	else if(state == 9'd21) begin
-		nextState = 9'd1;
+		nextState = 9'd254;
 		aluOperation = 4'b0001;
 		muxSignals = 2'b01;
 		regFileRS = instruction[25:21];
@@ -500,7 +506,7 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		aluSign = 2'b10;
 		muxSignals3=0;
 		muxSignals4=0;
-		regFileRW=1;
+		regFileRW=0;
 		signExtend = 1;
 	end
 
