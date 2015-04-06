@@ -55,6 +55,9 @@ always @ (operation, A, B, sign) begin
 	4'b1010: assign Y = luiOutput;
 	//add 4
 	4'b1011: Y = B + 32'd4;
+	//XOR logico
+	4'b1100: Y = (A ^ B);
+	
 	default: Y = Y; //Cualquier opcion diferente devuelve la misma entrada
 	endcase
 
