@@ -6,14 +6,17 @@ module comparator(output reg [31:0] regDestination, input [31:0] A, B, input [2:
 //SLTIU instToDo = 011
 //CLO   instToDo = 100
 //CLZ   instToDo = 101
-
+	reg signed [31:0] signedA;
+	reg signed [31:0] signedB;
+	reg [31:0]counter;
+	integer index;
 
 always @ (A,B,instToDo) begin
-	reg signed [31:0] signedA = A;
-	reg signed [31:0] signedB = B;	
-	reg [31:0]counter = 32'd0;
-	integer index = 31;
 
+	counter = 32'd0;
+	index = 31;
+	signedA = A;
+	signedB = B;
 	//  SLT instToDo = 000******************************************
 		if (instToDo == 3'd0)
 		 begin
@@ -22,20 +25,21 @@ always @ (A,B,instToDo) begin
 			else begin
 			 regDestination = 32'd0;
 			end
-		end
+		 end
 
 	// SLTU instToDo = 001******************************************
-		if (instToDo == 3'd1)
+		else if (instToDo == 3'd1)
 		 begin
-			if(A<B)
-			 regDestination = 32'd1;
+			if(A<B)begin
+			 	regDestination = 32'd1;
+			 	end
 			else begin
 			 regDestination = 32'd0;		
 			end	
 		 end
 
 	// SLTI instToDo = 010******************************************
-		if(instToDo == 3'd2)
+		else if(instToDo == 3'd2)
 		 begin
 		 	if(signedA<signedB)
 		 	 regDestination = 32'd1;
@@ -45,7 +49,7 @@ always @ (A,B,instToDo) begin
 		 end
 
 	//SLTIU instToDo = 011******************************************
-		if(instToDo == 3'd3)
+		else if(instToDo == 3'd3)
 		 begin
 		 	if(A<B)
 		 	 regDestination = 32'd1;
@@ -55,7 +59,7 @@ always @ (A,B,instToDo) begin
 		 end
 
 	//CLO   instToDo = 100******************************************
-		if(instToDo == 32'd4)
+		else if(instToDo == 32'd4)
 		 begin
 			while(A[index])
 			 begin 
@@ -66,7 +70,7 @@ always @ (A,B,instToDo) begin
 		 end
 
 	//CLZ   instToDo = 101******************************************
-		if(instToDo == 32'd5)
+		else if(instToDo == 32'd5)
 		 begin
 		 	while(A[index] == 0)
 		 	 begin
