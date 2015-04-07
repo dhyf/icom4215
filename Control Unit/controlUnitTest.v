@@ -10,6 +10,7 @@ module test_control_unit;
 	reg Clk;
 
 	//Outputs
+	wire trapMux;
 	wire signExtend;
 	wire clearPC;
 	wire regFileRW;
@@ -20,17 +21,16 @@ module test_control_unit;
 	wire ramMFA;
 	wire ramRW;
 	wire [8:0] ramAddress;
-	wire regFileEnable, pcEnable, irEnable, marEnable, mdrEnable;
+	wire pcEnable, irEnable, marEnable, mdrEnable;
 	wire [1:0] muxSignals; //M0; M1 from data path diagram (mux to ALU(B))
 	wire muxSignals2; //S from data path diagram (mux to MDR)
-	wire muxSignals3; //Mux selector to load HI/LO registers in mult and div
-	wire muxSignals4; //Mux selector for imm16; unsigned = 0; sign ext = 1
+	wire [1:0] muxSignals3; //Mux selector to load HI/LO registers in mult and div
 
-	controlUnit cu (signExtend,clearPC,regFileRW,regFileRD,regFileRS,regFileRT,
+	controlUnit cu (trapMux,signExtend,clearPC,regFileRW,regFileRD,regFileRS,regFileRT,
 		aluSign,aluOperation,ramDataSize,ramMFA,ramRW,
-		ramAddress,regFileEnable,pcEnable,irEnable,marEnable,
+		ramAddress,pcEnable,irEnable,marEnable,
 		mdrEnable,muxSignals,muxSignals2,muxSignals3,
-		muxSignals4,instruction,aluCarryFlags,ramMFC,reset,
+		instruction,aluCarryFlags,ramMFC,reset,
 		hardwareInterrupt,maskableInterrupt,Clk);
 
 	initial #30 $finish;

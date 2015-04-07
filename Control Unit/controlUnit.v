@@ -1,4 +1,4 @@
-module controlUnit (output reg trapMux;
+module controlUnit (output reg trapMux,
 					output reg signExtend, //Sign extension for imm16 1=y 0=n, x otherwise
 					output reg clearPC, //Used for reset
 					output reg regFileRW,
@@ -9,11 +9,10 @@ module controlUnit (output reg trapMux;
 					output reg ramMFA,
 					output reg ramRW,
 					output reg [8:0] ramAddress,
-					output reg regFileEnable, pcEnable, irEnable, marEnable, mdrEnable,
+					output reg pcEnable, irEnable, marEnable, mdrEnable,
 					output reg [1:0] muxSignals, //M0, M1 from data path diagram (mux to ALU(B))
 					output reg muxSignals2, //S from data path diagram (mux to MDR)
-					output reg muxSignals3, //Mux selector to load HI/LO registers in mult and div
-					output reg muxSignals4, //Mux selector for imm16, unsigned = 0, sign ext = 1
+					output reg [1:0] muxSignals3, //Mux selector to load HI/LO registers in mult and div
 					input [31:0] instruction,
 					input [3:0] aluCarryFlags,
 					input ramMFC,
@@ -51,7 +50,6 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		clearPC=0;
 		aluOperation=4'b0000;
 		muxSignals=2'b11;
-		regFileEnable=0;
 		irEnable=0;
 		pcEnable=0;
 		marEnable=1;
@@ -64,7 +62,6 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		nextState=9'd3;
 		aluOperation=4'b1011;
 		muxSignals=2'b11;
-		regFileEnable=0;
 		irEnable=0;
 		pcEnable=1;
 		marEnable=0;
@@ -87,7 +84,6 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 	else if(state == 9'd4) begin
 		$display("Inside state 4");
 		nextState=9'd255;
-		regFileEnable=0;
 		irEnable=1;
 		pcEnable=0;
 		marEnable=0;
@@ -102,14 +98,11 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		$display("Opcode = %b", opcode);
 		$display("Function Code = %b", functionCode);
 		if(opcode == 6'b000000) begin
-			$display("Inside opcode 000000");
 			if(functionCode == 6'b100000) begin
-				$display("ADDU: Inside function code 100000");
-				nextState=9'd5;
+				nextState=9'd5; //addu
 			end
 			if(functionCode == 6'b100001) begin
-				$display("ADD: Inside function code 100001");
-				nextState=9'd6;
+				nextState=9'd6; //add
 			end
 			if(functionCode == 6'b100010) begin
 				nextState=9'd7; //subu
@@ -180,11 +173,10 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		nextState = 9'd1;
 		aluOperation=4'b0001;
 		muxSignals=2'b00;
-		muxSignals3=0;
+		muxSignals3=2'b00;
 		regFileRS = instruction[25:21];
 		regFileRT = instruction[20:16];
 		regFileRD = instruction[15:11];
-		regFileEnable=1;
 		irEnable=0;
 		pcEnable=0;
 		marEnable=0;
@@ -201,11 +193,10 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		nextState = 9'd254;
 		aluOperation=4'b0001;
 		muxSignals=2'b00;
-		muxSignals3=0;
+		muxSignals3=2'b00;
 		regFileRS = instruction[25:21];
 		regFileRT = instruction[20:16];
 		regFileRD = instruction[15:11];
-		regFileEnable=1;
 		irEnable=0;
 		pcEnable=0;
 		marEnable=0;
@@ -220,8 +211,7 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		if(aluCarryFlags[0]) begin
 			ramAddress = 9'd448; //Address for overflow trap
 			nextState=9'd3;
-			regFileEnable=0;
-			irEnable=0;
+				irEnable=0;
 			pcEnable=0;
 			marEnable=0;
 			mdrEnable=0;
@@ -231,8 +221,7 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		end
 		else begin
 			nextState = 9'd1;
-			regFileEnable=1;
-			regFileRW=1;
+				regFileRW=1;
 		end
 	end
 
@@ -242,11 +231,10 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		nextState = 9'd1;
 		aluOperation=4'b0001;
 		muxSignals=2'b00;
-		muxSignals3=0;
+		muxSignals3=2'b00;
 		regFileRS = instruction[25:21];
 		regFileRT = instruction[20:16];
 		regFileRD = instruction[15:11];
-		regFileEnable=1;
 		irEnable=0;
 		pcEnable=0;
 		marEnable=0;
@@ -262,11 +250,10 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		nextState = 9'd254;
 		aluOperation=4'b0001;
 		muxSignals=2'b00;
-		muxSignals3=0;
+		muxSignals3=2'b00;
 		regFileRS = instruction[25:21];
 		regFileRT = instruction[20:16];
 		regFileRD = instruction[15:11];
-		regFileEnable=1;
 		irEnable=0;
 		pcEnable=0;
 		marEnable=0;
@@ -283,7 +270,6 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		muxSignals = 2'b00;
 		regFileRS = instruction[25:21];
 		regFileRT = instruction[20:16];
-		regFileEnable=1;
 		irEnable=0;
 		pcEnable=0;
 		marEnable=0;
@@ -300,7 +286,6 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		muxSignals = 2'b00;
 		regFileRS = instruction[25:21];
 		regFileRT = instruction[20:16];
-		regFileEnable=1;
 		irEnable=0;
 		pcEnable=0;
 		marEnable=0;
@@ -317,7 +302,6 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		muxSignals = 2'b00;
 		regFileRS = instruction[25:21];
 		regFileRT = instruction[20:16];
-		regFileEnable=1;
 		irEnable=0;
 		pcEnable=0;
 		marEnable=0;
@@ -334,7 +318,6 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		muxSignals = 2'b00;
 		regFileRS = instruction[25:21];
 		regFileRT = instruction[20:16];
-		regFileEnable=1;
 		irEnable=0;
 		pcEnable=0;
 		marEnable=0;
@@ -352,14 +335,12 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		regFileRS = instruction[25:21];
 		regFileRT = instruction[20:16];
 		regFileRD = instruction[15:11];
-		regFileEnable = 1;
 		irEnable=0;
 		pcEnable=0;
 		marEnable=0;
 		mdrEnable=0;
 		ramMFA=0;
-		muxSignals3=0;
-		muxSignals4=0;
+		muxSignals3=2'b00;
 		regFileRW=1;
 	end
 
@@ -371,14 +352,12 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		regFileRS = instruction[25:21];
 		regFileRT = instruction[20:16];
 		regFileRD = instruction[15:11];
-		regFileEnable = 1;
 		irEnable=0;
 		pcEnable=0;
 		marEnable=0;
 		mdrEnable=0;
 		ramMFA=0;
-		muxSignals3=0;
-		muxSignals4=0;
+		muxSignals3=2'b00;
 		regFileRW=1;
 	end
 
@@ -390,14 +369,12 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		regFileRS = instruction[25:21];
 		regFileRT = instruction[20:16];
 		regFileRD = instruction[15:11];
-		regFileEnable = 1;
 		irEnable=0;
 		pcEnable=0;
 		marEnable=0;
 		mdrEnable=0;
 		ramMFA=0;
-		muxSignals3=0;
-		muxSignals4=0;
+		muxSignals3=2'b00;
 		regFileRW=1;
 	end
 
@@ -407,14 +384,12 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		aluOperation = 4'b0111;
 		regFileRS = instruction[25:21];
 		regFileRD = instruction[15:11];
-		regFileEnable=1;
 		irEnable=0;
 		pcEnable=0;
 		marEnable=0;
 		mdrEnable=0;
 		ramMFA=0;
-		muxSignals3=0;
-		muxSignals4=0;
+		muxSignals3=2'b00;
 		regFileRW=1;
 	end
 
@@ -424,14 +399,12 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		aluOperation = 4'b1000;
 		regFileRS = instruction[25:21];
 		regFileRD = instruction[15:11];
-		regFileEnable=1;
 		irEnable=0;
 		pcEnable=0;
 		marEnable=0;
 		mdrEnable=0;
 		ramMFA=0;
-		muxSignals3=0;
-		muxSignals4=0;
+		muxSignals3=2'b00;
 		regFileRW=1;
 	end
 
@@ -441,14 +414,12 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		aluOperation = 4'b1001;
 		regFileRS = instruction[25:21];
 		regFileRD = instruction[15:11];
-		regFileEnable=1;
 		irEnable=0;
 		pcEnable=0;
 		marEnable=0;
 		mdrEnable=0;
 		ramMFA=0;
-		muxSignals3=0;
-		muxSignals4=0;
+		muxSignals3=2'b00;
 		regFileRW=1;
 	end
 
@@ -458,14 +429,12 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		aluOperation = 4'b1010;
 		regFileRS = instruction[25:21];
 		regFileRD = instruction[25:21];
-		regFileEnable=1;
 		irEnable=0;
 		pcEnable=0;
 		marEnable=0;
 		mdrEnable=0;
 		ramMFA=0;
-		muxSignals3=0;
-		muxSignals4=0;
+		muxSignals3=2'b00;
 		regFileRW=1;
 		signExtend = 0;
 	end
@@ -477,15 +446,13 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		muxSignals = 2'b01;
 		regFileRS = instruction[25:21];
 		regFileRD = instruction[20:16];
-		regFileEnable=1;
 		irEnable=0;
 		pcEnable=0;
 		marEnable=0;
 		mdrEnable=0;
 		ramMFA=0;
 		aluSign = 2'b10;
-		muxSignals3=0;
-		muxSignals4=0;
+		muxSignals3=2'b00;
 		regFileRW=1;
 		signExtend = 1;
 	end
@@ -497,15 +464,13 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		muxSignals = 2'b01;
 		regFileRS = instruction[25:21];
 		regFileRD = instruction[20:16];
-		regFileEnable=1;
 		irEnable=0;
 		pcEnable=0;
 		marEnable=0;
 		mdrEnable=0;
 		ramMFA=0;
 		aluSign = 2'b10;
-		muxSignals3=0;
-		muxSignals4=0;
+		muxSignals3=2'b00;
 		regFileRW=0;
 		signExtend = 1;
 	end
@@ -517,15 +482,13 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		muxSignals = 2'b01;
 		regFileRS = instruction[25:21];
 		regFileRD = instruction[20:16];
-		regFileEnable=1;
 		irEnable=0;
 		pcEnable=0;
 		marEnable=0;
 		mdrEnable=0;
 		ramMFA=0;
 		aluSign = 2'b10;
-		muxSignals3=0;
-		muxSignals4=0;
+		muxSignals3=2'b00;
 		regFileRW=1;
 		signExtend = 1;
 	end
