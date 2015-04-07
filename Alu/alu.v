@@ -1,4 +1,4 @@
-module alu(output reg  [31:0] Y, outHI, outLO, output [3:0] carryFlag, input [3:0] operation,input [1:0] sign, input [31:0] A,B);
+module alu(output reg  [31:0] Y, outHI, outLO, output [3:0] carryFlag, input [3:0] operation,input [1:0] sign, input [31:0] A,B, input [2:0] cmpsignal);
 
 
   	//Outputs from modules
@@ -8,6 +8,7 @@ module alu(output reg  [31:0] Y, outHI, outLO, output [3:0] carryFlag, input [3:
   	wire [31:0] divisionLO;
   	wire [31:0] addSubResult;
   	wire [31:0] luiOutput;
+  	wire [31:0] cmpResult;
 
   	reg [31:0] adderResult;
 
@@ -27,8 +28,9 @@ module alu(output reg  [31:0] Y, outHI, outLO, output [3:0] carryFlag, input [3:
   	divU div(divisionHI, divisionLO, sign, A, B);
   	adder addSub(addSubResult,carryFlag,A,B,sign);
   	lui luiModule(luiOutput,A);
+  	comparator cmp(cmpResult, A,B, cmpsignals)
 
-always @ (operation, A, B, sign) begin
+always @ (operation, A, B, sign, cmpsignal) begin
 
 	case (operation)
 	//Pasa valor B a salida
@@ -57,7 +59,8 @@ always @ (operation, A, B, sign) begin
 	4'b1011: Y = B + 32'd4;
 	//XOR logico
 	4'b1100: Y = (A ^ B);
-	
+	//Comparator
+	4'b1101: begin assign Y = cmpResult; end
 	default: Y = Y; //Cualquier opcion diferente devuelve la misma entrada
 	endcase
 

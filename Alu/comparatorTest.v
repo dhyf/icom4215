@@ -2,7 +2,7 @@ module comparatorTest;
 
 	wire [31:0] regDestination;
 
-	comparator cmp(regDestination,-32'd4, 32'd3, 3'b000);
+	comparator cmp(regDestination,32'd0, 32'd3, 3'b101);
 
 
 	initial begin

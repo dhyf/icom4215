@@ -4,4 +4,5 @@
 ../Divider/divU.v
 alu.v
 lui.v
+comparator.v
 aluTest.v
