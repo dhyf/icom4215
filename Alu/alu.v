@@ -28,7 +28,7 @@ module alu(output reg  [31:0] Y, outHI, outLO, output [3:0] carryFlag, input [3:
   	divU div(divisionHI, divisionLO, sign, A, B);
   	adder addSub(addSubResult,carryFlag,A,B,sign);
   	lui luiModule(luiOutput,A);
-  	comparator cmp(cmpResult, A,B, cmpsignals)
+  	comparator cmp(cmpResult, A,B, cmpsignal);
 
 always @ (operation, A, B, sign, cmpsignal) begin
 
@@ -60,7 +60,7 @@ always @ (operation, A, B, sign, cmpsignal) begin
 	//XOR logico
 	4'b1100: Y = (A ^ B);
 	//Comparator
-	4'b1101: begin assign Y = cmpResult; end
+	4'b1101: assign Y = cmpResult;
 	default: Y = Y; //Cualquier opcion diferente devuelve la misma entrada
 	endcase
 
