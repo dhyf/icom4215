@@ -12,6 +12,7 @@
 ../Adder/adder.v
 ../Divider/divU.v
 ../Alu/lui.v
+../Alu/comparator.v
 
 ../Multiplexers/32ByOneMux.v
 ../Decoders/5by32Decoder.v

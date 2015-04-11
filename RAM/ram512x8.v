@@ -22,6 +22,19 @@ assign dataByte[2] = dataIn[15:8];
 assign dataByte[3] = dataIn[7:0];
 integer i;
 
+//Loading RAM in time 0 (loading initial test program)
+initial #0 begin
+	$display("Loading test program to RAM...");
+	//Test instruction 1 (addu R0+R0 = R1) [00000000000000000000100000100001]
+	//Instruction 1 in bytes: B0=00000000, B1=00000000, B2=00001000, B3=00100001
+	Mem[0] = 8'b00000000;
+	Mem[1] = 8'b00000000;
+	Mem[2] = 8'b00001000;
+	Mem[3] = 8'b00100001;
+	$display("First word in memory loaded: %b %b %b %b", Mem[0],Mem[1],Mem[2],Mem[3]);
+	$display("Test Program loaded in RAM...");
+end
+
 always @ (memFuncActive, readWrite)
 
 if(memFuncActive) begin
@@ -69,17 +82,19 @@ if(memFuncActive) begin
 
 	else begin
 		
+		$display("Reading from address: %b", address);
+
 		//Reading a word (4 bytes)
 		if(dataSize == 3) begin
 			$display("Reading a word");
-			$display("Reading word byte 0: %h", Mem[address+3]);
-			dataOut[31:24] = Mem[address + 3];
-			$display("Reading word byte 1: %h", Mem[address+2]);
-			dataOut[23:16] = Mem[address + 2];
-			$display("Reading word byte 2: %h", Mem[address+1]);
-			dataOut[15:8] = Mem[address + 1];
-			$display("Reading word byte 3: %h", Mem[address]);
-			dataOut[7:0] = Mem[address];
+			$display("Reading word byte 0: %h", Mem[address]);
+			dataOut[31:24] = Mem[address];
+			$display("Reading word byte 1: %h", Mem[address+1]);
+			dataOut[23:16] = Mem[address + 1];
+			$display("Reading word byte 2: %h", Mem[address+2]);
+			dataOut[15:8] = Mem[address + 2];
+			$display("Reading word byte 3: %h", Mem[address+3]);
+			dataOut[7:0] = Mem[address+3];
 		end
 
 		//Reading a halfword (2 bytes)
@@ -87,10 +102,10 @@ if(memFuncActive) begin
 			$display("Reading a halfword");
 			// dataOut[31:24] = 8'b0;
 			// dataOut[23:16] = 8'b0;
-			$display("Reading halfword byte 0: %h", Mem[address+1]);
-			dataOut[15:8] = Mem[address + 1];
-			$display("Reading halfword byte 1: %h", Mem[address]);
-			dataOut[7:0] = Mem[address];
+			$display("Reading halfword byte 0: %h", Mem[address]);
+			dataOut[15:8] = Mem[address];
+			$display("Reading halfword byte 1: %h", Mem[address+1]);
+			dataOut[7:0] = Mem[address+1];
 		end
 
 		//Reading a single byte

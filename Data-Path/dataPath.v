@@ -3,12 +3,23 @@ module data_path(input hardwareInterrupt, maskableInterrupt, reset);
 reg Clk;
 
 //Clock signal
-initial begin
+initial #1 begin
 	Clk = 1'b0;
 	forever begin
 		#1 Clk = ~Clk;
 	end
 end
+
+initial begin
+	$monitor("Current input to trapMux(0) from MAR: %b", wire29);
+	$monitor("Current input to trapMux(1) from CU: %b", wire33);
+	$monitor("Current input to trapMux selector from CU: %b", wire32);
+	$monitor("Current output of ALU: %b",wire2);
+	$monitor("Current value of RD (data in to regFile): %d ; regFileRW=%b; RD=%b", wire17, wire22, wire19);
+end
+
+
+initial #15 $finish;
 
 wire [31:0] wire1; //Alu LO to Mux 3
 wire [31:0] wire2; //Alu Y to Mux 3, PC, Mux2, MAR
@@ -47,11 +58,16 @@ wire wire34; //RAM MFC to CU
 wire wire35; //CU to RAM MFA
 wire wire36; //CU to RAM RW
 wire [1:0] wire37; //CU dataSize to RAM dataSize
+wire [2:0] wire38; //cmpsignal from CU to Alu
+
+//Instantiating RAM
+ram512x8 ram (wire11,wire34,wire35,wire36,wire31,wire12,wire37,Clk);
+//ram512x8 ram (dataOut,memFuncComplete,memFuncActive,readWrite,address,dataIn,dataSize,Clk);
 
 register_file regFile (wire4,wire6,wire19,wire20,wire21,wire17,wire22,Clk);
 //register_file regFile (dataRS,dataRT,RD,RS,RT,dataRD,RW,Clk);
 
-controlUnit cu (wire32,wire23,wire16,wire22,wire19,wire20,wire21,
+controlUnit cu (wire38,wire32,wire23,wire16,wire22,wire19,wire20,wire21,
 		wire7,wire8,wire37,wire35,wire36,
 		wire33,wire15,wire25,wire30,
 		wire27,wire14,wire28,wire18,wire24,wire9,wire34,reset,
@@ -62,10 +78,7 @@ controlUnit cu (wire32,wire23,wire16,wire22,wire19,wire20,wire21,
 // 	mdrEnable,muxSignals,muxSignals2,muxSignals3,instruction,aluCarryFlags,ramMFC,reset,
 // 	hardwareInterrupt,maskableInterrupt,Clk);
 
-alu alu10 (wire2,wire3,wire1,wire9,wire8,wire7,wire4,wire5);
-
-ram512x8 ram (wire11,wire34,wire35,wire36,wire31,wire12,wire37,Clk);
-//ram512x8 ram (dataOut,memFuncComplete,memFuncActive,readWrite,address,dataIn,dataSize,Clk);
+alu alu10 (wire2,wire3,wire1,wire9,wire8,wire7,wire4,wire5,wire38);
 
 sign_extender signExtender(wire10,wire24[15:0],wire23);
 

@@ -10,6 +10,10 @@ module register_file (
 
 	wire [31:0] LE_RD;
 
+	always @ (Q1) begin
+		$monitor("Value of register1 changed: %d",Q1);
+	end
+
 	wire [31:0] Q0;
 	wire [31:0] Q1;
 	wire [31:0] Q2;

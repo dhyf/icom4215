@@ -30,32 +30,40 @@ assign opcode = instruction[31:26];
 wire [5:0] functionCode;
 assign functionCode = instruction[5:0];
 
-initial begin
+initial #1 begin
     state=9'd0; //Initial state, no operation? 
     nextState=9'd1;    
 end
 
 always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableInterrupt, state) begin
 	
+
+	$display("Current instruction from IR: %b",instruction);
+
 	//Reset state
 	if(state == 9'd0) begin
+		clearPC=1;
+		$display("Clear PC in state 0: %b", clearPC);
 		$display("Inside state 0");
 		nextState=9'd1;
-		clearPC=1;
 	end
 
 	//Begin FETCH states 1-4
 	else if(state == 9'd1) begin
 		$display("Inside state 1");
 		nextState=9'd2;
-		clearPC=0;
+		clearPC=0; //Setting pcClear to 0 after reset (not in signals table)
+		$display("Clear PC in state 1: %b", clearPC);
 		aluOperation=4'b0000;
 		muxSignals=2'b11;
 		irEnable=0;
 		pcEnable=0;
+		$display("MAR enable in state 1: %b", marEnable);
 		marEnable=1;
 		mdrEnable=0;
+		trapMux=0;
 		ramMFA=0;
+		regFileRW=0;
 	end
 
 	else if(state == 9'd2) begin
@@ -69,10 +77,15 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		mdrEnable=0;
 		ramRW=0;
 		ramMFA=1;
+		regFileRW=0;
+		trapMux=0;
+		ramDataSize = 2'b11;
 	end
 
 	else if(state == 9'd3) begin
 		pcEnable=0;
+		regFileRW=0;
+		ramDataSize = 2'b11;
 		$display("Inside state 3");
 		$display("ramMFC= %b",ramMFC);
 		if(ramMFC) begin
@@ -90,58 +103,62 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		marEnable=0;
 		mdrEnable=0;
 		ramMFA=0;
+		regFileRW=0;
 	end
 	//End FETCH states 1-4
 
 	//Begin Decode state (255)
 	else if(state == 9'd255) begin
+		regFileRW=0;
 		$display("Inside state 255 (DECODE)");
 		$display("Opcode = %b", opcode);
 		$display("Function Code = %b", functionCode);
 		if(opcode == 6'b000000) begin
-			if(functionCode == 6'b100000) begin
+			$display("Opcode = %b", opcode);
+			if(functionCode == 6'b100001) begin
+				$display("Function Code = %b", functionCode);
 				nextState=9'd5; //addu
 			end
-			if(functionCode == 6'b100001) begin
+			else if(functionCode == 6'b100000) begin
 				nextState=9'd6; //add
 			end
-			if(functionCode == 6'b100010) begin
+			else if(functionCode == 6'b100010) begin
 				nextState=9'd7; //subu
 			end
-			if(functionCode == 6'b100011) begin
+			else if(functionCode == 6'b100011) begin
 				nextState=9'd8; //sub
 			end
-			if(functionCode == 6'b011010) begin
+			else if(functionCode == 6'b011010) begin
 				nextState=9'd11; //divu
 			end
-			if(functionCode == 6'b011011) begin
+			else if(functionCode == 6'b011011) begin
 				nextState=9'd12; //div
 			end
-			if(functionCode == 6'b011000) begin
+			else if(functionCode == 6'b011000) begin
 				nextState=9'd10; //multu
 			end
-			if(functionCode == 6'b011001) begin
+			else if(functionCode == 6'b011001) begin
 				nextState=9'd9; //mult
 			end
-			if(functionCode == 6'b100100) begin
+			else if(functionCode == 6'b100100) begin
 				nextState=9'd13; //and
 			end
-			if(functionCode == 6'b100101) begin
+			else if(functionCode == 6'b100101) begin
 				nextState=9'd14; //or
 			end
-			if(functionCode == 6'b100110) begin
+			else if(functionCode == 6'b100110) begin
 				nextState=9'd15; //xor
 			end
-			if(functionCode == 6'b100111) begin
+			else if(functionCode == 6'b100111) begin
 				nextState=9'd25; //nor
 			end
-			if(functionCode == 6'b000000) begin
+			else if(functionCode == 6'b000000) begin
 				nextState=9'd17; //sll
 			end
-			if(functionCode == 6'b000011) begin
+			else if(functionCode == 6'b000011) begin
 				nextState=9'd18; //sra
 			end
-			if(functionCode == 6'b000010) begin
+			else if(functionCode == 6'b000010) begin
 				nextState=9'd16; //srl
 			end
 			else begin
@@ -149,16 +166,16 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 				nextState = 9'd1;
 			end
 		end
-		if(opcode == 6'b001000) begin
+		else if(opcode == 6'b001000) begin
 			nextState = 9'd21; //addi
 		end
-		if(opcode == 6'b001001) begin
+		else if(opcode == 6'b001001) begin
 			nextState = 9'd20; //addiu
 		end
-		if(opcode == 6'b001100) begin
+		else if(opcode == 6'b001100) begin
 			nextState = 9'd22; //andi
 		end
-		if(opcode == 6'b001111) begin
+		else if(opcode == 6'b001111) begin
 			nextState = 9'd19; //lui
 		end
 		else begin
@@ -174,7 +191,6 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		nextState = 9'd1;
 		aluOperation=4'b0001;
 		muxSignals=2'b00;
-		muxSignals3=2'b00;
 		regFileRS = instruction[25:21];
 		regFileRT = instruction[20:16];
 		regFileRD = instruction[15:11];
@@ -182,9 +198,10 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		pcEnable=0;
 		marEnable=0;
 		mdrEnable=0;
-		regFileRW=1;
 		ramMFA=0;
 		aluSign=2'b00;
+		muxSignals3=2'b00;
+		regFileRW=1;
 	end
 
 
@@ -494,10 +511,14 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		signExtend = 1;
 	end
 
+	else if(instruction === 32'bx) begin
+		$display("Invalid instruction: Undefined");
+		nextState = 9'd1;
+	end
 
 end
 
-always @(Clk) begin
+always @(negedge Clk) begin
     state = nextState;
 end
 
