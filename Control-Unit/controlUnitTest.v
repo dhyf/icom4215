@@ -10,6 +10,7 @@ module test_control_unit;
 	reg Clk;
 
 	//Outputs
+	wire [2:0] cmpsignal;
 	wire trapMux;
 	wire signExtend;
 	wire clearPC;
@@ -26,7 +27,7 @@ module test_control_unit;
 	wire muxSignals2; //S from data path diagram (mux to MDR)
 	wire [1:0] muxSignals3; //Mux selector to load HI/LO registers in mult and div
 
-	controlUnit cu (trapMux,signExtend,clearPC,regFileRW,regFileRD,regFileRS,regFileRT,
+	controlUnit cu (cmpsignal,trapMux,signExtend,clearPC,regFileRW,regFileRD,regFileRS,regFileRT,
 		aluSign,aluOperation,ramDataSize,ramMFA,ramRW,
 		ramAddress,pcEnable,irEnable,marEnable,
 		mdrEnable,muxSignals,muxSignals2,muxSignals3,
