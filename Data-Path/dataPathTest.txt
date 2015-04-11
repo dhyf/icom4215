@@ -1,0 +1,20 @@
+//Data Path Test
+../Register-File/registerFile.v
+../Control-Unit/controlUnit.v
+../Alu/alu.v
+../RAM/ram512x8.v
+../Multiplexers/fourByOneMux.v
+../Multiplexers/twoByOneMux.v
+../Multiplexers/twoByOneMux9bit.v
+../Registers/register32Bit.v
+
+../Multiplier/multU.v
+../Adder/adder.v
+../Divider/divU.v
+../Alu/lui.v
+
+../Multiplexers/32ByOneMux.v
+../Decoders/5by32Decoder.v
+
+signExtender.v
+dataPath.v
