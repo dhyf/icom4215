@@ -22,7 +22,7 @@ end
 initial #15 $finish;
 
 wire [31:0] wire1; //Alu LO to Mux 3
-wire [31:0] wire2; //Alu Y to Mux 3, PC, Mux2, MAR
+wire [31:0] wire2; //Alu Y to Mux 3, nextPC(0), Mux2, MAR
 wire [31:0] wire3; //Alu HI to Mux3
 wire [31:0] wire4; //Register file (RS) to Alu input A
 wire [31:0] wire5; //Mux 1 output to Alu input B
@@ -59,6 +59,9 @@ wire wire35; //CU to RAM MFA
 wire wire36; //CU to RAM RW
 wire [1:0] wire37; //CU dataSize to RAM dataSize
 wire [2:0] wire38; //cmpsignal from CU to Alu
+wire wire39; //CU muxSignals5 to nextPC selector
+wire [31:0] wire40; //CU to nextPC(1)
+wire [31:0] wire41; //nextPC(Y) to PC
 
 //Instantiating RAM
 ram512x8 ram (wire11,wire34,wire35,wire36,wire31,wire12,wire37,Clk);
@@ -67,7 +70,7 @@ ram512x8 ram (wire11,wire34,wire35,wire36,wire31,wire12,wire37,Clk);
 register_file regFile (wire4,wire6,wire19,wire20,wire21,wire17,wire22,Clk);
 //register_file regFile (dataRS,dataRT,RD,RS,RT,dataRD,RW,Clk);
 
-controlUnit cu (wire38,wire32,wire23,wire16,wire22,wire19,wire20,wire21,
+controlUnit cu (wire40,wire39,wire38,wire32,wire23,wire16,wire22,wire19,wire20,wire21,
 		wire7,wire8,wire37,wire35,wire36,
 		wire33,wire15,wire25,wire30,
 		wire27,wire14,wire28,wire18,wire24,wire9,wire34,reset,
@@ -88,13 +91,16 @@ mux_4x1 mux1 (wire5, wire14, wire6, wire10, wire12, wire13); //Inputs: PC, MDR, 
 mux_2x1 mux2 (wire26, wire28, wire2, wire11); //Inputs: RAM Output, ALU Output Output: MDR
 //mux_2x1 mux1 (Y, S, I0, I1);
 
+mux_2x1 nextPC (wire41, wire39, wire2, wire40); //Inputs: RAM Output, ALU Output Output: MDR
+//mux_2x1 mux1 (Y, S, I0, I1);
+
 mux_4x1 mux3 (wire17, wire18, wire2, wire1, wire3, 32'd0); //Inputs: ALU(Y), ALU(LO) Output: REGFILE(dataRD)
 //mux_4x1 mux2 (Y, S, I0, I1, I2, I3);
 
 mux_2x1_9bit trapMuxModule (wire31, wire32, wire29[8:0], wire33); //Inputs MAR, CU(ramAddress) Output: RAM Address
 //mux_2x1 mux1 (Y, S, I0, I1);
 
-Register32 pcRegister (wire13,wire2,wire15,wire16,Clk);
+Register32 pcRegister (wire13,wire41,wire15,wire16,Clk);
 //Register32 reg32 (Q,D,LE,Clr,Clk);
 
 Register32 marRegister (wire29,wire2,wire30,0,Clk);

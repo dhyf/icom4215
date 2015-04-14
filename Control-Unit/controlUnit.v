@@ -1,4 +1,6 @@
-module controlUnit (output reg [2:0] cmpsignal,
+module controlUnit (output reg [31:0] nextPC,
+					output reg muxSignals5,
+					output reg [2:0] cmpsignal,
 					output reg trapMux,
 					output reg signExtend, //Sign extension for imm16 1=y 0=n, x otherwise
 					output reg clearPC, //Used for reset
@@ -68,6 +70,13 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 
 	else if(state == 9'd2) begin
 		$display("Inside state 2");
+		// if(jmp) begin
+		// 	muxSignals5 = 1;
+		// 	jmp = 0;
+		// end
+		// else begin
+		// 	muxSignals5 = 0;
+		// end
 		nextState=9'd3;
 		aluOperation=4'b1011;
 		muxSignals=2'b11;
@@ -510,6 +519,11 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		regFileRW=1;
 		signExtend = 1;
 	end
+
+	// else if(state == 9'd1) begin
+	// 	nextPC[31:28] = currentPC[31:28];
+	// 	nextPC[27:0] = instruction[25:0]*4;
+	// end 
 
 	else if(instruction === 32'bx) begin
 		$display("Invalid instruction: Undefined");
