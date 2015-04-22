@@ -22,6 +22,27 @@ assign dataByte[2] = dataIn[15:8];
 assign dataByte[3] = dataIn[7:0];
 integer i;
 
+//Loading RAM with test program from text file
+
+//To load test program from file
+integer   fd, code, index;
+reg [7:0] data;
+
+initial begin
+	$display("Loading test program to RAM...");
+	fd = $fopen("testProgram.dat","r"); 
+	index = 0;
+	while (!($feof(fd))) begin
+		code = $fscanf(fd, "%b", data);
+		Mem[index]=data;
+		$display("Reading from file=%b, Memory Content=%b",data,Mem[index]);
+		index = index + 1;
+	end
+  	$fclose(fd);
+  	$display("Test Program loaded in RAM...");
+end
+
+/*
 //Loading RAM in time 0 (loading initial test program)
 initial #0 begin
 	$display("Loading test program to RAM...");
@@ -48,6 +69,7 @@ initial #0 begin
 	$display("Instruction 3 in memory loaded: %b %b %b %b", Mem[8],Mem[9],Mem[10],Mem[11]);
 	$display("Test Program loaded in RAM...");
 end
+*/
 
 always @ (memFuncActive, readWrite)
 
