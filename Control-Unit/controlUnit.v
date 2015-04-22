@@ -45,7 +45,7 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 	//Reset state
 	if(state == 9'd0) begin
 		clearPC=1;
-		$display("Clear PC in state 0: %b", clearPC);
+		//$display("Clear PC in state 0: %b", clearPC);
 		$display("Inside state 0");
 		nextState=9'd1;
 	end
@@ -55,12 +55,12 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		$display("Inside state 1");
 		nextState=9'd2;
 		clearPC=0; //Setting pcClear to 0 after reset (not in signals table)
-		$display("Clear PC in state 1: %b", clearPC);
+		//$display("Clear PC in state 1: %b", clearPC);
 		aluOperation=4'b0000;
 		muxSignals=2'b11;
 		irEnable=0;
 		pcEnable=0;
-		$display("MAR enable in state 1: %b", marEnable);
+		//$display("MAR enable in state 1: %b", marEnable);
 		marEnable=1;
 		mdrEnable=0;
 		trapMux=0;
@@ -69,7 +69,7 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 	end
 
 	else if(state == 9'd2) begin
-		$display("Inside state 2");
+		$display("Inside state 2, aluOperation: %b",aluOperation);
 		// if(jmp) begin
 		// 	muxSignals5 = 1;
 		// 	jmp = 0;
@@ -89,6 +89,7 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		regFileRW=0;
 		trapMux=0;
 		ramDataSize = 2'b11;
+		muxSignals5=0;
 	end
 
 	else if(state == 9'd3) begin
@@ -96,7 +97,7 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		regFileRW=0;
 		ramDataSize = 2'b11;
 		$display("Inside state 3");
-		$display("ramMFC= %b",ramMFC);
+		//$display("ramMFC= %b",ramMFC);
 		if(ramMFC) begin
 			$display("Going to state 4");
 			nextState=9'd4;
@@ -121,11 +122,11 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		regFileRW=0;
 		$display("Inside state 255 (DECODE)");
 		$display("Opcode = %b", opcode);
-		$display("Function Code = %b", functionCode);
+		//$display("Function Code = %b", functionCode);
 		if(opcode == 6'b000000) begin
-			$display("Opcode = %b", opcode);
+			//$display("Opcode = %b", opcode);
+			$display("Function Code = %b", functionCode);
 			if(functionCode == 6'b100001) begin
-				$display("Function Code = %b", functionCode);
 				nextState=9'd5; //addu
 			end
 			else if(functionCode == 6'b100000) begin
@@ -220,7 +221,6 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		nextState = 9'd254;
 		aluOperation=4'b0001;
 		muxSignals=2'b00;
-		muxSignals3=2'b00;
 		regFileRS = instruction[25:21];
 		regFileRT = instruction[20:16];
 		regFileRD = instruction[15:11];
@@ -228,27 +228,34 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		pcEnable=0;
 		marEnable=0;
 		mdrEnable=0;
-		regFileRW=0;
 		ramMFA=0;
 		aluSign=2'b10;
+		muxSignals3=2'b00;
+		regFileRW=0;
 	end
 
 	//Check for overflow
 	else if(state == 9'd254) begin
 		if(aluCarryFlags[0]) begin
-			ramAddress = 9'd448; //Address for overflow trap
 			nextState=9'd3;
-				irEnable=0;
+			irEnable=0;
 			pcEnable=0;
 			marEnable=0;
 			mdrEnable=0;
 			ramRW=0;
 			ramMFA=1;
 			trapMux=1;
+			ramAddress = 9'd448; //Address for overflow trap
 		end
 		else begin
 			nextState = 9'd1;
-				regFileRW=1;
+			irEnable=0;
+			pcEnable=0;
+			marEnable=0;
+			mdrEnable=0;
+			ramMFA=0;
+			regFileRW=1;
+			trapMux=0;
 		end
 	end
 

@@ -10,10 +10,6 @@ module register_file (
 
 	wire [31:0] LE_RD;
 
-	always @ (Q1) begin
-		$monitor("Value of register1 changed: %d",Q1);
-	end
-
 	wire [31:0] Q0;
 	wire [31:0] Q1;
 	wire [31:0] Q2;
@@ -90,5 +86,129 @@ module register_file (
 	mux_32x1 muxRT (dataRT,RT, Q0, Q1, Q2, Q3, Q4, Q5, Q6, Q7, Q8, Q9, Q10, Q11, Q12, Q13, Q14, Q15,
 				 Q16, Q17, Q18, Q19, Q20, Q21, Q22, Q23, Q24, Q25, Q26, Q27, Q28, Q29, Q30, Q31);
 
+	//For debugging, displays the new value of a register when it changes
+	always @ (Q1) begin
+		$display("Value of register 1 changed: %d",Q1);
+	end
+
+	always @ (Q2) begin
+		$display("Value of register 2 changed: %d",Q2);
+	end
+
+	always @ (Q3) begin
+		$display("Value of register 3 changed: %d",Q3);
+	end
+
+	always @ (Q4) begin
+		$display("Value of register 4 changed: %d",Q4);
+	end
+
+	always @ (Q5) begin
+		$display("Value of register 5 changed: %d",Q5);
+	end
+
+	always @ (Q6) begin
+		$display("Value of register 6 changed: %d",Q6);
+	end
+
+	always @ (Q7) begin
+		$display("Value of register 7 changed: %d",Q7);
+	end
+
+	always @ (Q8) begin
+		$display("Value of register 8 changed: %d",Q8);
+	end
+
+	always @ (Q9) begin
+		$display("Value of register 9 changed: %d",Q9);
+	end
+
+	always @ (Q10) begin
+		$display("Value of register 10 changed: %d",Q10);
+	end
+
+	always @ (Q11) begin
+		$display("Value of register 11 changed: %d",Q11);
+	end
+
+	always @ (Q12) begin
+		$display("Value of register 12 changed: %d",Q12);
+	end
+
+	always @ (Q13) begin
+		$display("Value of register 13 changed: %d",Q13);
+	end
+
+	always @ (Q14) begin
+		$display("Value of register 14 changed: %d",Q14);
+	end
+
+	always @ (Q15) begin
+		$display("Value of register 15 changed: %d",Q15);
+	end
+
+	always @ (Q16) begin
+		$display("Value of register 16 changed: %d",Q16);
+	end
+
+	always @ (Q17) begin
+		$display("Value of register 17 changed: %d",Q17);
+	end
+
+	always @ (Q18) begin
+		$display("Value of register 18 changed: %d",Q18);
+	end
+
+	always @ (Q19) begin
+		$display("Value of register 19 changed: %d",Q19);
+	end
+
+	always @ (Q20) begin
+		$display("Value of register 20 changed: %d",Q20);
+	end
+
+	always @ (Q21) begin
+		$display("Value of register 21 changed: %d",Q21);
+	end
+
+	always @ (Q22) begin
+		$display("Value of register 22 changed: %d",Q22);
+	end
+
+	always @ (Q23) begin
+		$display("Value of register 23 changed: %d",Q23);
+	end
+
+	always @ (Q24) begin
+		$display("Value of register 24 changed: %d",Q24);
+	end
+
+	always @ (Q25) begin
+		$display("Value of register 25 changed: %d",Q25);
+	end
+
+	always @ (Q26) begin
+		$display("Value of register 26 changed: %d",Q26);
+	end
+
+	always @ (Q27) begin
+		$display("Value of register 27 changed: %d",Q27);
+	end
+
+	always @ (Q28) begin
+		$display("Value of register 28 changed: %d",Q28);
+	end
+
+	always @ (Q29) begin
+		$display("Value of register 29 changed: %d",Q29);
+	end
+
+	always @ (Q30) begin
+		$display("Value of register 30 changed: %d",Q30);
+	end
+
+	always @ (Q31) begin
+		$display("Value of register 31 changed: %d",Q31);
+	end
 
 endmodule

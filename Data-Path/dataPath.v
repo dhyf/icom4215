@@ -6,20 +6,25 @@ reg Clk;
 initial #1 begin
 	Clk = 1'b0;
 	forever begin
-		#1 Clk = ~Clk;
+		#5 Clk = ~Clk;
 	end
 end
 
 initial begin
-	$monitor("Current input to trapMux(0) from MAR: %b", wire29);
-	$monitor("Current input to trapMux(1) from CU: %b", wire33);
-	$monitor("Current input to trapMux selector from CU: %b", wire32);
-	$monitor("Current output of ALU: %b",wire2);
-	$monitor("Current value of RD (data in to regFile): %d ; regFileRW=%b; RD=%b", wire17, wire22, wire19);
+	// $monitor("Current input to trapMux(0) from MAR: %b", wire29);
+	// $monitor("Current input to trapMux(1) from CU: %b", wire33);
+	// $monitor("Current input to trapMux selector from CU: %b", wire32);
+	// $monitor("Current output of ALU: %b",wire2);
+	//$monitor("ALU Input A: %d, ALU Input B: %d, ALU Operation: %b", wire4,wire5,wire8);
+	$monitor("Mux3 Selector from CU: %b, ALU(Y) to Mux3(00) Input: %d", wire18,wire2);
+	$monitor("Mux1 output to ALU input B: %d with selector=%b",wire5,wire14);
+	//$monitor("PC Status OUT=%d IN=%d EN=%b", wire13, wire41, wire15,"\nCurrent value of RD (data in to regFile): %d ; regFileRW=%b; RD=%b",wire17, wire22, wire19);
+	//$monitor("NextPC Value: %d", wire41);
+	//$monitor("Current value of RD (data in to regFile): %d ; regFileRW=%b; RD=%b",wire17, wire22, wire19);
 end
 
 
-initial #15 $finish;
+initial #150 $finish;
 
 wire [31:0] wire1; //Alu LO to Mux 3
 wire [31:0] wire2; //Alu Y to Mux 3, nextPC(0), Mux2, MAR

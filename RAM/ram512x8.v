@@ -31,7 +31,21 @@ initial #0 begin
 	Mem[1] = 8'b00000000;
 	Mem[2] = 8'b00001000;
 	Mem[3] = 8'b00100001;
-	$display("First word in memory loaded: %b %b %b %b", Mem[0],Mem[1],Mem[2],Mem[3]);
+	$display("Instruction 1 in memory loaded: %b %b %b %b", Mem[0],Mem[1],Mem[2],Mem[3]);
+	//Test instruction 2 (addu R1+R1 = R2) [00000000001000010001000000100001]
+	//Instruction 2 in bytes: B0=00000000, B1=00100001, B2=00010000, B3=00100001
+	Mem[4] = 8'b00000000;
+	Mem[5] = 8'b00100001;
+	Mem[6] = 8'b00010000;
+	Mem[7] = 8'b00100001;
+	$display("Instruction 2 in memory loaded: %b %b %b %b", Mem[4],Mem[5],Mem[6],Mem[7]);
+	//Test instruction 3 (add R1+15 = R3) [00100100001000110000000000001111]
+	//Instruction 3 in bytes: B0=00100100, B1=00100011, B2=00000000, B3=00001111
+	Mem[8] = 8'b00100100;
+	Mem[9] = 8'b00100011;
+	Mem[10] = 8'b00000000;
+	Mem[11] = 8'b00001111;
+	$display("Instruction 3 in memory loaded: %b %b %b %b", Mem[8],Mem[9],Mem[10],Mem[11]);
 	$display("Test Program loaded in RAM...");
 end
 

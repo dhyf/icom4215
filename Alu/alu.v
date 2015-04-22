@@ -65,4 +65,10 @@ always @ (operation, A, B, sign, cmpsignal) begin
 	endcase
 
 end
+
+//For debugging, displays ALU output values when it changes
+always @ (Y) begin
+	$display("ALU Output changed to %d after operation %b with inputs A=%d B=%d",Y,operation,A,B);
+end
+
 endmodule
