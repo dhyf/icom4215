@@ -475,6 +475,7 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 
 	//Add imm16 unsigned
 	else if(state == 9'd20) begin
+		$display("ADDIU: Inside state 20");
 		nextState = 9'd1;
 		aluOperation = 4'b0001;
 		muxSignals = 2'b01;

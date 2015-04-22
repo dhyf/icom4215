@@ -36,7 +36,7 @@ always @ (operation, A, B, sign, cmpsignal) begin
 	//Pasa valor B a salida
 	4'b0000: Y = B;
 	//Sumar o restar (con y sin signo)
-	4'b0001: assign Y = addSubResult;
+	4'b0001: Y = addSubResult;
 	//Multiplicacion (con y sin signo)
 	4'b0010: begin assign outHI = productHI; assign outLO = productLO; end
 	//Division (con y sin signo)
