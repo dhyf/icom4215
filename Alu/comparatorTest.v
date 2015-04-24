@@ -2,7 +2,7 @@ module comparatorTest;
 
 	wire [31:0] regDestination;
 
-	comparator cmp(regDestination,32'd0, 32'd3, 3'b101);
+	comparator cmp(regDestination,32'hFFFFFFFF, 32'd3, 3'b100);
 
 
 	initial begin
@@ -10,7 +10,7 @@ module comparatorTest;
 	
 		$display ("\nComparator Test");
 			
-		$display ("regDestination");
+		$display ("regDestination %d", regDestination);
 
 		$monitor ("%d",regDestination);
 
