@@ -1,6 +1,6 @@
 module controlUnit (output reg [31:0] nextPC,
 					output reg muxSignals5,
-					output reg [2:0] cmpsignal,
+					output reg [3:0] cmpsignal,
 					output reg trapMux,
 					output reg signExtend, //Sign extension for imm16 1=y 0=n, x otherwise
 					output reg clearPC, //Used for reset

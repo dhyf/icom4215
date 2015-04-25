@@ -19,13 +19,20 @@ initial begin
 	//$monitor("ALU Input A: %d, ALU Input B: %d, ALU Operation: %b", wire4,wire5,wire8);
 	//$monitor("Mux3 Selector from CU: %b, ALU(Y) to Mux3(00) Input: %d", wire18,wire2);
 	//$monitor("Mux1 output to ALU input B: %d with selector=%b",wire5,wire14);
-	$monitor("PC Status OUT=%d IN=%d EN=%b", wire13, wire41, wire15,"\nCurrent value of RD (data in to regFile): %d ; regFileRW=%b; RD=%b",wire17, wire22, wire19);
+	//$monitor("PC Status OUT=%d IN=%d EN=%b", wire13, wire41, wire15,"\nCurrent value of RD (data in to regFile): %d ; regFileRW=%b; RD=%b",wire17, wire22, wire19);
 	//$monitor("NextPC Value: %d", wire41);
 	//$monitor("Current value of RD (data in to regFile): %d ; regFileRW=%b; RD=%b",wire17, wire22, wire19);
 end
 
+always @ (wire5,wire14) begin
+	$display("Mux1 output to ALU input B: %d with selector=%b",wire5,wire14);
+end
 
-initial #50 $finish;
+always @ (wire13, wire41, wire15) begin
+	$display("PC Status OUT=%d IN=%d EN=%b", wire13, wire41, wire15);
+end
+
+initial #75 $finish;
 
 wire [31:0] wire1; //Alu LO to Mux 3
 wire [31:0] wire2; //Alu Y to Mux 3, nextPC(0), Mux2, MAR
@@ -64,7 +71,7 @@ wire wire34; //RAM MFC to CU
 wire wire35; //CU to RAM MFA
 wire wire36; //CU to RAM RW
 wire [1:0] wire37; //CU dataSize to RAM dataSize
-wire [2:0] wire38; //cmpsignal from CU to Alu
+wire [3:0] wire38; //cmpsignal from CU to Alu
 wire wire39; //CU muxSignals5 to nextPC selector
 wire [31:0] wire40; //CU to nextPC(1)
 wire [31:0] wire41; //nextPC(Y) to PC

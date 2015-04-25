@@ -1,4 +1,4 @@
-module alu(output reg  [31:0] Y, outHI, outLO, output [3:0] carryFlag, input [3:0] operation,input [1:0] sign, input [31:0] A,B, input [2:0] cmpsignal);
+module alu(output reg  [31:0] Y, outHI, outLO, output [3:0] carryFlag, input [3:0] operation,input [1:0] sign, input [31:0] A,B, input [3:0] cmpsignal);
 
 
   	//Outputs from modules
@@ -36,7 +36,7 @@ always @ (operation, A, B, sign, cmpsignal) begin
 	//Pasa valor B a salida
 	4'b0000: Y = B;
 	//Sumar o restar (con y sin signo)
-	4'b0001: Y = addSubResult;
+	4'b0001: assign Y = addSubResult;
 	//Multiplicacion (con y sin signo)
 	4'b0010: begin assign outHI = productHI; assign outLO = productLO; end
 	//Division (con y sin signo)
@@ -56,9 +56,9 @@ always @ (operation, A, B, sign, cmpsignal) begin
 	//LUI
 	4'b1010: assign Y = luiOutput;
 	//add 4
-	4'b1011: Y = B + 32'd4;
+	4'b1011: assign Y = B + 32'd4;
 	//XOR logico
-	4'b1100: Y = (A ^ B);
+	4'b1100: assign Y = (A ^ B);
 	//Comparator
 	4'b1101: assign Y = cmpResult;
 	default: Y = Y; //Cualquier opcion diferente devuelve la misma entrada
