@@ -68,6 +68,7 @@ initial #0 begin
 	Mem[11] = 8'b00001111;
 	$display("Instruction 3 in memory loaded: %b %b %b %b", Mem[8],Mem[9],Mem[10],Mem[11]);
 	$display("Test Program loaded in RAM...");
+	Instruction 3: 00100100000001000000000000011111
 end
 */
 

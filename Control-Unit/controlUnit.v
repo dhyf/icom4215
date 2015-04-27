@@ -188,6 +188,15 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		else if(opcode == 6'b001111) begin
 			nextState = 9'd19; //lui
 		end
+		else if(opcode == 6'b011100) begin
+			if(functionCode == 6'b100001) begin
+				nextState = 9'd26; //CLO
+			end
+			else begin
+				$display("Invalid instruction: function code not found"); //function code not found
+				nextState = 9'd1;
+			end
+		end
 		else begin
 			$display("Invalid instruction: opcode not found"); //Opcode not found
 			nextState = 9'd1;
@@ -526,6 +535,24 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		muxSignals3=2'b00;
 		regFileRW=1;
 		signExtend = 1;
+	end
+
+	//CLO
+	else if(state == 9'd26) begin
+		nextState = 9'd1;
+		aluOperation = 4'b1101;
+		muxSignals = 2'b00;
+		regFileRS = instruction[25:21];
+		regFileRT = instruction[15:11];
+		regFileRD = instruction[15:11];
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=0;
+		ramMFA=0;
+		muxSignals3=2'b00;
+		regFileRW=1;
+		cmpsignal = 4'b0100;
 	end
 
 	// else if(state == 9'd1) begin
