@@ -34,7 +34,7 @@ always @ (operation, A, B, sign, cmpsignal) begin
 
 	case (operation)
 	//Pasa valor B a salida
-	4'b0000: Y = B;
+	4'b0000: assign Y = B;
 	//Sumar o restar (con y sin signo)
 	4'b0001: assign Y = addSubResult;
 	//Multiplicacion (con y sin signo)

@@ -245,6 +245,7 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 
 	//Check for overflow
 	else if(state == 9'd254) begin
+		$display("Overflow=%b",aluCarryFlags[0]);
 		if(aluCarryFlags[0]) begin
 			nextState=9'd3;
 			irEnable=0;
@@ -274,7 +275,6 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		nextState = 9'd1;
 		aluOperation=4'b0001;
 		muxSignals=2'b00;
-		muxSignals3=2'b00;
 		regFileRS = instruction[25:21];
 		regFileRT = instruction[20:16];
 		regFileRD = instruction[15:11];
@@ -282,9 +282,10 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		pcEnable=0;
 		marEnable=0;
 		mdrEnable=0;
-		regFileRW=1;
 		ramMFA=0;
 		aluSign=2'b01;
+		muxSignals3=2'b00;
+		regFileRW=1;
 	end
 
 	//Subtract signed (generates overflow)
