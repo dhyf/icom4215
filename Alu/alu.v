@@ -61,7 +61,7 @@ always @ (operation, A, B, sign, cmpsignal) begin
 	4'b1100: assign Y = (A ^ B);
 	//Comparator
 	4'b1101: assign Y = cmpResult;
-	default: Y = Y; //Cualquier opcion diferente devuelve la misma entrada
+	default: assign Y = Y; //Cualquier opcion diferente devuelve la misma entrada
 	endcase
 
 end
@@ -69,6 +69,10 @@ end
 //For debugging, displays ALU output values when it changes
 always @ (Y) begin
 	$display("ALU Output changed to %d after operation %b with inputs A=%d B=%d",Y,operation,A,B);
+end
+
+always @ (outHI, outLO) begin
+	$display("ALU HI=%h LO=%h after operation %b with Y=%d A=%d B=%d",outHI,outLO,operation,Y,A,B);
 end
 
 endmodule

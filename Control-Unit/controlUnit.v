@@ -132,10 +132,10 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 			else if(functionCode == 6'b100000) begin
 				nextState=9'd6; //add
 			end
-			else if(functionCode == 6'b100010) begin
+			else if(functionCode == 6'b100011) begin
 				nextState=9'd7; //subu
 			end
-			else if(functionCode == 6'b100011) begin
+			else if(functionCode == 6'b100010) begin
 				nextState=9'd8; //sub
 			end
 			else if(functionCode == 6'b011010) begin
@@ -144,10 +144,10 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 			else if(functionCode == 6'b011011) begin
 				nextState=9'd12; //div
 			end
-			else if(functionCode == 6'b011000) begin
+			else if(functionCode == 6'b011001) begin
 				nextState=9'd10; //multu
 			end
-			else if(functionCode == 6'b011001) begin
+			else if(functionCode == 6'b011000) begin
 				nextState=9'd9; //mult
 			end
 			else if(functionCode == 6'b100100) begin
@@ -170,6 +170,9 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 			end
 			else if(functionCode == 6'b000010) begin
 				nextState=9'd16; //srl
+			end
+			else if(functionCode == 6'b001011) begin
+				nextState=9'd66; //movn
 			end
 			else begin
 				$display("Invalid instruction: function code not found"); //function code not found
@@ -196,6 +199,9 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 				$display("Invalid instruction: function code not found"); //function code not found
 				nextState = 9'd1;
 			end
+		end
+		else if(opcode == 6'b100011) begin
+			nextState = 9'd35; //lw
 		end
 		else begin
 			$display("Invalid instruction: opcode not found"); //Opcode not found
@@ -247,6 +253,7 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 	else if(state == 9'd254) begin
 		$display("Overflow=%b",aluCarryFlags[0]);
 		if(aluCarryFlags[0]) begin
+			$display("Overflow Ocurred");
 			nextState=9'd3;
 			irEnable=0;
 			pcEnable=0;
@@ -294,7 +301,6 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		nextState = 9'd254;
 		aluOperation=4'b0001;
 		muxSignals=2'b00;
-		muxSignals3=2'b00;
 		regFileRS = instruction[25:21];
 		regFileRT = instruction[20:16];
 		regFileRD = instruction[15:11];
@@ -302,9 +308,10 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		pcEnable=0;
 		marEnable=0;
 		mdrEnable=0;
-		regFileRW=0;
 		ramMFA=0;
 		aluSign=2'b11;
+		muxSignals3=2'b00;
+		regFileRW=0;
 	end
 
 	//Mult signed
@@ -554,6 +561,97 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		muxSignals3=2'b00;
 		regFileRW=1;
 		cmpsignal = 4'b0100;
+	end
+
+	//LW (load word) (1)
+	else if(state == 9'd35) begin
+		nextState = 9'd36;
+		aluOperation = 4'b0001;
+		muxSignals = 2'b01;
+		regFileRS = instruction[25:21];
+		regFileRD = instruction[20:16];
+		irEnable=0;
+		pcEnable=0;
+		marEnable=1;
+		mdrEnable=0;
+		ramMFA=0;
+		aluSign = 2'b00;
+		regFileRW=0;
+		signExtend = 1;
+	end
+
+	//LW (load word) (2)
+	else if(state == 9'd36) begin
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable = 0;
+		ramRW = 0;
+		ramMFA=1;
+		regFileRW=0;
+		ramDataSize = 2'b11;
+		if(ramMFC) begin
+			nextState = 9'd37;
+		end
+		else begin
+			nextState = 9'd36;
+			trapMux = 0;
+		end
+	end
+
+	//LW (load word) (3)
+	else if(state == 9'd37) begin
+		nextState = 9'd38;
+		muxSignals2 = 1;
+		regFileRS = instruction[25:21];
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=1;
+		ramMFA=0;
+		regFileRW=0;
+	end
+
+	//LW (load word) (4)
+	else if(state == 9'd38) begin
+		nextState = 9'd1;
+		aluOperation = 4'b0000;
+		muxSignals = 2'b10;
+		muxSignals2 = 1;
+		regFileRD = instruction[20:16];
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=0;
+		ramMFA=0;
+		muxSignals3 = 2'b00;
+		regFileRW=1;
+	end
+
+	//MOVN
+	else if(state == 9'd66) begin
+		nextState = 9'd67;
+		aluOperation = 4'b1101;
+		muxSignals = 2'b00;
+		regFileRS = instruction[25:21];
+		regFileRT = instruction[20:16];
+		regFileRD = instruction[15:11];
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=0;
+		ramMFA=0;
+		regFileRW=0;
+		cmpsignal = 4'b0110;
+	end
+
+	//MOVN (2)
+	else if(state == 9'd67) begin
+		nextState = 9'd1;
+		if(instruction[20:16] != 0) begin
+			regFileRW=1;
+			regFileRD = regFileRS;
+		end
 	end
 
 	// else if(state == 9'd1) begin

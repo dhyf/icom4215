@@ -32,7 +32,7 @@ always @ (wire13, wire41, wire15) begin
 	$display("PC Status OUT=%d IN=%d EN=%b", wire13, wire41, wire15);
 end
 
-initial #100 $finish;
+initial #150 $finish;
 
 wire [31:0] wire1; //Alu LO to Mux 3
 wire [31:0] wire2; //Alu Y to Mux 3, nextPC(0), Mux2, MAR
