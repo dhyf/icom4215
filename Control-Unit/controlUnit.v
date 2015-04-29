@@ -138,15 +138,15 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 			else if(functionCode == 6'b100010) begin
 				nextState=9'd8; //sub
 			end
-			else if(functionCode == 6'b011010) begin
+			else if(functionCode == 6'b011011) begin
 				nextState=9'd11; //divu
 			end
-			else if(functionCode == 6'b011011) begin
+			else if(functionCode == 6'b011010) begin
 				nextState=9'd12; //div
 			end
 			else if(functionCode == 6'b011001) begin
 				nextState=9'd10; //multu
-			end
+			end			
 			else if(functionCode == 6'b011000) begin
 				nextState=9'd9; //mult
 			end
@@ -160,19 +160,55 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 				nextState=9'd15; //xor
 			end
 			else if(functionCode == 6'b100111) begin
-				nextState=9'd25; //nor
+				nextState=9'd31; //nor
+			end
+			else if(functionCode == 6'b000100) begin
+				nextState=9'd17; //sllv
+			end
+			else if(functionCode == 6'b000111) begin
+				nextState=9'd18; //srav
+			end
+			else if(functionCode == 6'b000110) begin
+				nextState=9'd16; //srlv
+			end
+			else if(functionCode == 6'b101010) begin
+				nextState=9'd22; //slt
+			end
+			else if(functionCode == 6'b101011) begin
+				nextState=9'd23; //sltu
 			end
 			else if(functionCode == 6'b000000) begin
-				nextState=9'd17; //sll
+				nextState=9'd32; //sll
 			end
 			else if(functionCode == 6'b000011) begin
-				nextState=9'd18; //sra
+				nextState=9'd33; //sra
 			end
 			else if(functionCode == 6'b000010) begin
-				nextState=9'd16; //srl
+				nextState=9'd34; //srl
+			end
+			else if(functionCode == 6'b010000) begin
+				nextState=9'd64; //mfhi
+			end
+			else if(functionCode == 6'b010010) begin
+				nextState=9'd65; //mflo
 			end
 			else if(functionCode == 6'b001011) begin
 				nextState=9'd66; //movn
+			end
+			else if(functionCode == 6'b001010) begin
+				nextState=9'd68; //movz
+			end
+			else if(functionCode == 6'b010001) begin
+				nextState=9'd70; //mthi
+			end
+			else if(functionCode == 6'b010011) begin
+				nextState=9'd71; //mtlo
+			end
+			else if(functionCode == 6'b001001) begin
+				nextState=9'd85; //jalr
+			end
+			else if(functionCode == 6'b001000) begin
+				nextState=9'd87; //jr
 			end
 			else begin
 				$display("Invalid instruction: function code not found"); //function code not found
@@ -186,7 +222,13 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 			nextState = 9'd20; //addiu
 		end
 		else if(opcode == 6'b001100) begin
-			nextState = 9'd22; //andi
+			nextState = 9'd28; //andi
+		end
+		else if(opcode == 6'b001101) begin
+			nextState = 9'd29; //ori
+		end
+		else if(opcode == 6'b001110) begin
+			nextState = 9'd30; //xori
 		end
 		else if(opcode == 6'b001111) begin
 			nextState = 9'd19; //lui
@@ -195,6 +237,9 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 			if(functionCode == 6'b100001) begin
 				nextState = 9'd26; //CLO
 			end
+			else if(functionCode == 6'b100000) begin
+				nextState = 9'd27; //clz
+			end
 			else begin
 				$display("Invalid instruction: function code not found"); //function code not found
 				nextState = 9'd1;
@@ -202,6 +247,87 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		end
 		else if(opcode == 6'b100011) begin
 			nextState = 9'd35; //lw
+		end
+		else if(opcode == 6'b100001) begin
+			nextState = 9'd39; //lh
+		end
+		else if(opcode == 6'b100101) begin
+			nextState = 9'd43; //lhu
+		end
+		else if(opcode == 6'b100000) begin
+			nextState = 9'd47; //lb
+		end
+		else if(opcode == 6'b100100) begin
+			nextState = 9'd51; //lbu
+		end
+		else if(opcode == 6'b101011) begin
+			nextState = 9'd55; //sw
+		end
+		else if(opcode == 6'b101001) begin
+			nextState = 9'd58; //sh
+		end
+		else if(opcode == 6'b101000) begin
+			nextState = 9'd61; //sb
+		end
+		else if(opcode == 6'b001010) begin
+			nextState = 9'd24; //slti
+		end
+		else if(opcode == 6'b001011) begin
+			nextState = 9'd25; //sltiu
+		end
+		else if(opcode == 6'b000100) begin
+			nextState = 9'd74; //beq
+		end
+		// else if(opcode == 6'b000100) begin
+		// 	nextState = 9'd72; //b
+		// end
+		else if(opcode == 6'b000001) begin
+			if(instruction[20:16] == 5'b10001) begin
+				nextState = 9'd76; //bgezal
+			end
+			// else if(instruction[20:16] == 5'b10001) begin
+			// 	nextState = 9'd74; //bal
+			// end
+			else if(instruction[20:16] == 5'b00001) begin
+			 	nextState = 9'd75; //bgez
+			end
+			else if(instruction[20:16] == 5'b00000) begin
+			 	nextState = 9'd80; //bltz
+			end
+			else if(instruction[20:16] == 5'b10000) begin
+			 	nextState = 9'd81; //bltzal
+			end
+			else begin
+				$display("Invalid instruction"); //function code not found
+				nextState = 9'd1;
+			end
+		end
+		else if(opcode == 6'b000111) begin
+			if(instruction[20:16] == 5'b00000) begin
+				nextState = 9'd78; //bgtz
+			end
+			else begin
+				$display("Invalid instruction"); //function code not found
+				nextState = 9'd1;
+			end
+		end
+		else if(opcode == 6'b000110) begin
+			if(instruction[20:16] == 5'b00000) begin
+				nextState = 9'd79; //blez
+			end
+			else begin
+				$display("Invalid instruction"); //function code not found
+				nextState = 9'd1;
+			end
+		end
+		else if(opcode == 6'b000101) begin
+			nextState = 9'd82; //bne
+		end
+		else if(opcode == 6'b000010) begin
+			nextState = 9'd83; //j
+		end
+		else if(opcode == 6'b000011) begin
+			nextState = 9'd84; //jal
 		end
 		else begin
 			$display("Invalid instruction: opcode not found"); //Opcode not found
