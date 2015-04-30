@@ -555,11 +555,13 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		regFileRW=1;
 	end
 
-	//Logic shift right
+	//SRLV
 	else if(state == 9'd16) begin
 		nextState = 9'd1;
 		aluOperation = 4'b0111;
+		muxSignals = 2'b00;
 		regFileRS = instruction[25:21];
+		regFileRT = instruction[20:16];
 		regFileRD = instruction[15:11];
 		irEnable=0;
 		pcEnable=0;
@@ -570,11 +572,13 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		regFileRW=1;
 	end
 
-	//Logic shift left
+	//SLLV
 	else if(state == 9'd17) begin
 		nextState = 9'd1;
 		aluOperation = 4'b1000;
+		muxSignals = 2'b00;
 		regFileRS = instruction[25:21];
+		regFileRT = instruction[20:16];
 		regFileRD = instruction[15:11];
 		irEnable=0;
 		pcEnable=0;
@@ -585,11 +589,13 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		regFileRW=1;
 	end
 
-	//Arithmetic shift right
+	//SRAV
 	else if(state == 9'd18) begin
 		nextState = 9'd1;
 		aluOperation = 4'b1001;
+		muxSignals = 2'b00;
 		regFileRS = instruction[25:21];
+		regFileRT = instruction[20:16];
 		regFileRD = instruction[15:11];
 		irEnable=0;
 		pcEnable=0;
@@ -604,6 +610,7 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 	else if(state == 9'd19) begin
 		nextState = 9'd1;
 		aluOperation = 4'b1010;
+		muxSignals = 2'b01;
 		regFileRS = instruction[25:21];
 		regFileRD = instruction[25:21];
 		irEnable=0;
@@ -616,7 +623,7 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		signExtend = 0;
 	end
 
-	//Add imm16 unsigned
+	//ADDIU
 	else if(state == 9'd20) begin
 		$display("ADDIU: Inside state 20");
 		nextState = 9'd1;
@@ -635,7 +642,7 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		signExtend = 1;
 	end
 
-	//Add imm16 signed (generates overflow)
+	//ADDI
 	else if(state == 9'd21) begin
 		nextState = 9'd254;
 		aluOperation = 4'b0001;
@@ -653,10 +660,49 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		signExtend = 1;
 	end
 
-	//ANDI (imm16)
+	//slt
 	else if(state == 9'd22) begin
+		$display("SLT: Inside state 22");
 		nextState = 9'd1;
-		aluOperation = 4'b0001;
+		aluOperation = 4'b1101;
+		muxSignals = 2'b00;
+		regFileRS = instruction[25:21];
+		regFileRT = instruction[20:16];
+		regFileRD = instruction[15:11];
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=0;
+		ramMFA=0;
+		muxSignals3 = 2'b00;
+		regFileRW=1;
+		cmpsignal = 4'b0000;
+	end
+
+	//sltu
+	else if(state == 9'd23) begin
+		$display("SLTU: Inside state 23");
+		nextState = 9'd1;
+		aluOperation = 4'b1101;
+		muxSignals = 2'b00;
+		regFileRS = instruction[25:21];
+		regFileRT = instruction[20:16];
+		regFileRD = instruction[15:11];
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=0;
+		ramMFA=0;
+		muxSignals3 = 2'b00;
+		regFileRW=1;
+		cmpsignal = 4'b0001;
+	end
+
+	//slti
+	else if(state == 9'd24) begin
+		$display("SLTI: Inside state 24");
+		nextState = 9'd1;
+		aluOperation = 4'b1101;
 		muxSignals = 2'b01;
 		regFileRS = instruction[25:21];
 		regFileRD = instruction[20:16];
@@ -665,10 +711,29 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		marEnable=0;
 		mdrEnable=0;
 		ramMFA=0;
-		aluSign = 2'b10;
-		muxSignals3=2'b00;
+		muxSignals3 = 2'b00;
 		regFileRW=1;
-		signExtend = 1;
+		signExtend = 1; 
+		cmpsignal = 4'b0010;
+	end
+
+	//sltiu
+	else if(state == 9'd25) begin
+		$display("SLTIU: Inside state 25");
+		nextState = 9'd1;
+		aluOperation = 4'b1101;
+		muxSignals = 2'b01;
+		regFileRS = instruction[25:21];
+		regFileRD = instruction[20:16];
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=0;
+		ramMFA=0;
+		muxSignals3 = 2'b00;
+		regFileRW=1;
+		signExtend = 1; 
+		cmpsignal = 4'b0011;
 	end
 
 	//CLO
@@ -677,7 +742,6 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		aluOperation = 4'b1101;
 		muxSignals = 2'b00;
 		regFileRS = instruction[25:21];
-		regFileRT = instruction[15:11];
 		regFileRD = instruction[15:11];
 		irEnable=0;
 		pcEnable=0;
@@ -687,6 +751,91 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		muxSignals3=2'b00;
 		regFileRW=1;
 		cmpsignal = 4'b0100;
+	end
+
+	//CLZ
+	else if(state == 9'd27) begin
+		nextState = 9'd1;
+		aluOperation = 4'b1101;
+		muxSignals = 2'b00;
+		regFileRS = instruction[25:21];
+		regFileRD = instruction[15:11];
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=0;
+		ramMFA=0;
+		muxSignals3=2'b00;
+		regFileRW=1;
+		cmpsignal = 4'b0101;
+	end
+
+	//ANDI (imm16)
+	else if(state == 9'd28) begin
+		nextState = 9'd1;
+		aluOperation = 4'b0100;
+		muxSignals = 2'b01;
+		regFileRS = instruction[25:21];
+		regFileRD = instruction[20:16];
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=0;
+		ramMFA=0;
+		muxSignals3=2'b00;
+		regFileRW=1;
+		signExtend=0;
+	end
+
+	//ORI (imm16)
+	else if(state == 9'd29) begin
+		nextState = 9'd1;
+		aluOperation = 4'b0101;
+		muxSignals = 2'b01;
+		regFileRS = instruction[25:21];
+		regFileRD = instruction[20:16];
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=0;
+		ramMFA=0;
+		muxSignals3=2'b00;
+		regFileRW=1;
+		signExtend=0;
+	end
+
+	//XORI (imm16)
+	else if(state == 9'd30) begin
+		nextState = 9'd1;
+		aluOperation = 4'b1100;
+		muxSignals = 2'b01;
+		regFileRS = instruction[25:21];
+		regFileRD = instruction[20:16];
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=0;
+		ramMFA=0;
+		muxSignals3=2'b00;
+		regFileRW=1;
+		signExtend=0;
+	end
+
+	//NOR (imm16)
+	else if(state == 9'd31) begin
+		nextState = 9'd1;
+		aluOperation = 4'b0110;
+		muxSignals = 2'b00;
+		regFileRS = instruction[25:21];
+		regFileRT = instruction[20:16];
+		regFileRD = instruction[15:11];
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=0;
+		ramMFA=0;
+		muxSignals3=2'b00;
+		regFileRW=1;
 	end
 
 	//LW (load word) (1)
@@ -754,6 +903,407 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		regFileRW=1;
 	end
 
+	//LH (load half-word) (1)
+	else if(state == 9'd39) begin
+		nextState = 9'd40;
+		aluOperation = 4'b0001;
+		muxSignals = 2'b01;
+		regFileRS = instruction[25:21];
+		regFileRD = instruction[20:16];
+		irEnable=0;
+		pcEnable=0;
+		marEnable=1;
+		mdrEnable=0;
+		ramMFA=0;
+		aluSign = 2'b00;
+		regFileRW=0;
+		signExtend = 1;
+	end
+
+	//LH (load half-word) (2)
+	else if(state == 9'd40) begin
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable = 0;
+		ramRW = 0;
+		ramMFA=1;
+		regFileRW=0;
+		ramDataSize = 2'b01;
+		if(ramMFC) begin
+			nextState = 9'd41;
+		end
+		else begin
+			nextState = 9'd40;
+			trapMux = 0;
+		end
+	end
+
+	//LH (load half-word) (3)
+	else if(state == 9'd41) begin
+		nextState = 9'd42;
+		muxSignals2 = 1;
+		regFileRS = instruction[25:21];
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=1;
+		ramMFA=0;
+		regFileRW=0;
+	end
+
+	//LH (load half-word) (4)
+	else if(state == 9'd42) begin
+		nextState = 9'd1;
+		aluOperation = 4'b0000;
+		muxSignals = 2'b10;
+		muxSignals2 = 1;
+		regFileRD = instruction[20:16];
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=0;
+		ramMFA=0;
+		muxSignals3 = 2'b00;
+		regFileRW=1;
+	end
+
+	//LHU (load half-word unsigned) (1)
+	else if(state == 9'd43) begin
+		nextState = 9'd44;
+		aluOperation = 4'b0001;
+		muxSignals = 2'b01;
+		regFileRS = instruction[25:21];
+		regFileRD = instruction[20:16];
+		irEnable=0;
+		pcEnable=0;
+		marEnable=1;
+		mdrEnable=0;
+		ramMFA=0;
+		aluSign = 2'b00;
+		regFileRW=0;
+		signExtend = 0;
+	end
+
+	//LHU (load half-word unsigned) (2)
+	else if(state == 9'd44) begin
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable = 0;
+		ramRW = 0;
+		ramMFA=1;
+		regFileRW=0;
+		ramDataSize = 2'b01;
+		if(ramMFC) begin
+			nextState = 9'd45;
+		end
+		else begin
+			nextState = 9'd44;
+			trapMux = 0;
+		end
+	end
+
+	//LHU (load half-word unsigned) (3)
+	else if(state == 9'd45) begin
+		nextState = 9'd46;
+		muxSignals2 = 1;
+		regFileRS = instruction[25:21];
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=1;
+		ramMFA=0;
+		regFileRW=0;
+	end
+
+	//LHU (load half-word unsigned) (4)
+	else if(state == 9'd46) begin
+		nextState = 9'd1;
+		aluOperation = 4'b0000;
+		muxSignals = 2'b10;
+		muxSignals2 = 1;
+		regFileRD = instruction[20:16];
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=0;
+		ramMFA=0;
+		muxSignals3 = 2'b00;
+		regFileRW=1;
+	end
+
+	//LB (load byte) (1)
+	else if(state == 9'd47) begin
+		nextState = 9'd48;
+		aluOperation = 4'b0001;
+		muxSignals = 2'b01;
+		regFileRS = instruction[25:21];
+		regFileRD = instruction[20:16];
+		irEnable=0;
+		pcEnable=0;
+		marEnable=1;
+		mdrEnable=0;
+		ramMFA=0;
+		aluSign = 2'b00;
+		regFileRW=0;
+		signExtend = 1;
+	end
+
+	//LB (load byte) (2)
+	else if(state == 9'd48) begin
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable = 0;
+		ramRW = 0;
+		ramMFA=1;
+		regFileRW=0;
+		ramDataSize = 2'b00;
+		if(ramMFC) begin
+			nextState = 9'd49;
+		end
+		else begin
+			nextState = 9'd48;
+			trapMux = 0;
+		end
+	end
+
+	//LB (load byte) (3)
+	else if(state == 9'd49) begin
+		nextState = 9'd50;
+		muxSignals2 = 1;
+		regFileRS = instruction[25:21];
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=1;
+		ramMFA=0;
+		regFileRW=0;
+	end
+
+	//LB (load byte) (4)
+	else if(state == 9'd50) begin
+		nextState = 9'd1;
+		aluOperation = 4'b0000;
+		muxSignals = 2'b10;
+		muxSignals2 = 1;
+		regFileRD = instruction[20:16];
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=0;
+		ramMFA=0;
+		muxSignals3 = 2'b00;
+		regFileRW=1;
+	end
+
+	//LBU (load byte unsigned) (1)
+	else if(state == 9'd51) begin
+		nextState = 9'd52;
+		aluOperation = 4'b0001;
+		muxSignals = 2'b01;
+		regFileRS = instruction[25:21];
+		regFileRD = instruction[20:16];
+		irEnable=0;
+		pcEnable=0;
+		marEnable=1;
+		mdrEnable=0;
+		ramMFA=0;
+		aluSign = 2'b00;
+		regFileRW=0;
+		signExtend = 0;
+	end
+
+	//LBU (load byte unsigned) (2)
+	else if(state == 9'd52) begin
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable = 0;
+		ramRW = 0;
+		ramMFA=1;
+		regFileRW=0;
+		ramDataSize = 2'b00;
+		if(ramMFC) begin
+			nextState = 9'd53;
+		end
+		else begin
+			nextState = 9'd52;
+			trapMux = 0;
+		end
+	end
+
+	//LBU (load byte unsigned) (3)
+	else if(state == 9'd53) begin
+		nextState = 9'd54;
+		muxSignals2 = 1;
+		regFileRS = instruction[25:21];
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=1;
+		ramMFA=0;
+		regFileRW=0;
+	end
+
+	//LBU (load byte unsigned) (4)
+	else if(state == 9'd54) begin
+		nextState = 9'd1;
+		aluOperation = 4'b0000;
+		muxSignals = 2'b10;
+		muxSignals2 = 1;
+		regFileRD = instruction[20:16];
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=0;
+		ramMFA=0;
+		muxSignals3 = 2'b00;
+		regFileRW=1;
+	end
+
+	//SW (1)
+	else if(state == 9'd55) begin
+		nextState = 9'd56;
+		aluOperation = 4'b0001;
+		muxSignals = 2'b01;
+		regFileRS = instruction[25:21];
+		irEnable = 0;
+		pcEnable=0;
+		marEnable=1;
+		mdrEnable=0;
+		ramMFA=0;
+		aluSign = 2'b00;
+		signExtend = 1;
+		regFileRW = 0;
+	end
+
+	//SW (2)
+	else if(state == 9'd56) begin
+		nextState = 9'd57;
+		aluOperation = 4'b0000;
+		muxSignals = 2'b00;
+		muxSignals2 = 0;
+		regFileRT = instruction[20:16];
+		irEnable = 0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=1;
+		ramMFA=0;
+		aluSign = 2'b00;
+		signExtend = 1;
+	end
+
+	//SW (3)
+	else if(state == 9'd57) begin
+		mdrEnable=0;
+		ramMFA=1;
+		ramRW = 1;
+		trapMux = 0;
+		ramDataSize = 2'b11;
+		if(ramMFC) begin
+			nextState = 9'd1;
+		end
+		else begin
+			nextState = 9'd57;
+		end
+	end
+
+	//SH (1)
+	else if(state == 9'd55) begin
+		nextState = 9'd56;
+		aluOperation = 4'b0001;
+		muxSignals = 2'b01;
+		regFileRS = instruction[25:21];
+		irEnable = 0;
+		pcEnable=0;
+		marEnable=1;
+		mdrEnable=0;
+		ramMFA=0;
+		aluSign = 2'b00;
+		signExtend = 1;
+		regFileRW = 0;
+	end
+
+	//SH (2)
+	else if(state == 9'd56) begin
+		nextState = 9'd57;
+		aluOperation = 4'b0000;
+		muxSignals = 2'b00;
+		muxSignals2 = 0;
+		regFileRT = instruction[20:16];
+		irEnable = 0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=1;
+		ramMFA=0;
+		aluSign = 2'b00;
+		signExtend = 1;
+	end
+
+	//SH (3)
+	else if(state == 9'd57) begin
+		mdrEnable=0;
+		ramMFA=1;
+		ramRW = 1;
+		trapMux = 0;
+		ramDataSize = 2'b01;
+		if(ramMFC) begin
+			nextState = 9'd1;
+		end
+		else begin
+			nextState = 9'd57;
+		end
+	end
+
+	//SB (1)
+	else if(state == 9'd55) begin
+		nextState = 9'd56;
+		aluOperation = 4'b0001;
+		muxSignals = 2'b01;
+		regFileRS = instruction[25:21];
+		irEnable = 0;
+		pcEnable=0;
+		marEnable=1;
+		mdrEnable=0;
+		ramMFA=0;
+		aluSign = 2'b00;
+		signExtend = 1;
+		regFileRW = 0;
+	end
+
+	//SB (2)
+	else if(state == 9'd56) begin
+		nextState = 9'd57;
+		aluOperation = 4'b0000;
+		muxSignals = 2'b00;
+		muxSignals2 = 0;
+		regFileRT = instruction[20:16];
+		irEnable = 0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=1;
+		ramMFA=0;
+		aluSign = 2'b00;
+		signExtend = 1;
+	end
+
+	//SB (3)
+	else if(state == 9'd57) begin
+		mdrEnable=0;
+		ramMFA=1;
+		ramRW = 1;
+		trapMux = 0;
+		ramDataSize = 2'b00;
+		if(ramMFC) begin
+			nextState = 9'd1;
+		end
+		else begin
+			nextState = 9'd57;
+		end
+	end
+
 	//MOVN
 	else if(state == 9'd66) begin
 		nextState = 9'd67;
@@ -789,6 +1339,38 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		$display("Invalid instruction: Undefined");
 		nextState = 9'd1;
 	end
+
+	/*Begin: Sample Instruction State Template
+	
+	//Instruction Name
+	else if(state == 9'd999) begin
+		$display("INST: Inside state 9999");
+		nextState = 9'd1;
+		aluOperation = 4'b0000;
+		muxSignals = 2'b00;
+		muxSignals2 = 0;
+		regFileRS = instruction[25:21];
+		regFileRT = instruction[20:16];
+		regFileRD = instruction[15:11];
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=0;
+		ramRW = 0;
+		ramMFA=0;
+		aluSign = 2'b00;
+		muxSignals3 = 2'b00;
+		regFileRW=0;
+		signExtend = 0;
+		trapMux = 0;
+		ramAddress 9'b000000000;
+		cmpsignal = 4'b0000;
+		ramDataSize = 2'b00;
+		jmp = 0; //Internal jump signal
+		muxSignals5 = 0; //Used for jumps
+	end
+
+	End: Sample Instruction State Template */
 
 end
 
