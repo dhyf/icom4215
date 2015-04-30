@@ -22,9 +22,11 @@ module controlUnit (output reg [31:0] nextPC,
 					input reset,
 					input hardwareInterrupt,
 					input maskableInterrupt,
-					input Clk);
+					input Clk,
+					input [31:0] currentPC);
 
 reg [9:0] state,nextState;
+reg jmp;
 
 wire [5:0] opcode;
 assign opcode = instruction[31:26];
@@ -70,13 +72,13 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 
 	else if(state == 9'd2) begin
 		$display("Inside state 2, aluOperation: %b",aluOperation);
-		// if(jmp) begin
-		// 	muxSignals5 = 1;
-		// 	jmp = 0;
-		// end
-		// else begin
-		// 	muxSignals5 = 0;
-		// end
+		if(jmp) begin
+			muxSignals5 = 1;
+			jmp = 0;
+		end
+		else begin
+			muxSignals5 = 0;
+		end
 		nextState=9'd3;
 		aluOperation=4'b1011;
 		muxSignals=2'b11;
@@ -1211,8 +1213,8 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 	end
 
 	//SH (1)
-	else if(state == 9'd55) begin
-		nextState = 9'd56;
+	else if(state == 9'd58) begin
+		nextState = 9'd59;
 		aluOperation = 4'b0001;
 		muxSignals = 2'b01;
 		regFileRS = instruction[25:21];
@@ -1227,8 +1229,8 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 	end
 
 	//SH (2)
-	else if(state == 9'd56) begin
-		nextState = 9'd57;
+	else if(state == 9'd59) begin
+		nextState = 9'd60;
 		aluOperation = 4'b0000;
 		muxSignals = 2'b00;
 		muxSignals2 = 0;
@@ -1243,7 +1245,7 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 	end
 
 	//SH (3)
-	else if(state == 9'd57) begin
+	else if(state == 9'd60) begin
 		mdrEnable=0;
 		ramMFA=1;
 		ramRW = 1;
@@ -1253,13 +1255,13 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 			nextState = 9'd1;
 		end
 		else begin
-			nextState = 9'd57;
+			nextState = 9'd60;
 		end
 	end
 
 	//SB (1)
-	else if(state == 9'd55) begin
-		nextState = 9'd56;
+	else if(state == 9'd61) begin
+		nextState = 9'd62;
 		aluOperation = 4'b0001;
 		muxSignals = 2'b01;
 		regFileRS = instruction[25:21];
@@ -1274,8 +1276,8 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 	end
 
 	//SB (2)
-	else if(state == 9'd56) begin
-		nextState = 9'd57;
+	else if(state == 9'd62) begin
+		nextState = 9'd63;
 		aluOperation = 4'b0000;
 		muxSignals = 2'b00;
 		muxSignals2 = 0;
@@ -1290,7 +1292,7 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 	end
 
 	//SB (3)
-	else if(state == 9'd57) begin
+	else if(state == 9'd63) begin
 		mdrEnable=0;
 		ramMFA=1;
 		ramRW = 1;
@@ -1300,8 +1302,34 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 			nextState = 9'd1;
 		end
 		else begin
-			nextState = 9'd57;
+			nextState = 9'd63;
 		end
+	end
+	
+	//MFHI
+	else if(state == 9'd64) begin
+		nextState = 9'd1;
+		regFileRD = instruction[15:11];
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=0;
+		ramMFA=0;
+		muxSignals3 = 2'b10;
+		regFileRW=1;
+	end
+
+	//MFLO
+	else if(state == 9'd65) begin
+		nextState = 9'd1;
+		regFileRD = instruction[15:11];
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=0;
+		ramMFA=0;
+		muxSignals3 = 2'b01;
+		regFileRW=1;
 	end
 
 	//MOVN
@@ -1318,22 +1346,116 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		mdrEnable=0;
 		ramMFA=0;
 		regFileRW=0;
-		cmpsignal = 4'b0110;
+		cmpsignal = 4'b1101;
 	end
 
 	//MOVN (2)
 	else if(state == 9'd67) begin
 		nextState = 9'd1;
-		if(instruction[20:16] != 0) begin
+		if(aluCarryFlags[0]) begin
 			regFileRW=1;
-			regFileRD = regFileRS;
 		end
 	end
 
-	// else if(state == 9'd1) begin
-	// 	nextPC[31:28] = currentPC[31:28];
-	// 	nextPC[27:0] = instruction[25:0]*4;
-	// end 
+	//MOVZ
+	else if(state == 9'd68) begin
+		nextState = 9'd69;
+		aluOperation = 4'b1101;
+		muxSignals = 2'b00;
+		regFileRS = instruction[25:21];
+		regFileRT = instruction[20:16];
+		regFileRD = instruction[15:11];
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=0;
+		ramMFA=0;
+		regFileRW=0;
+		cmpsignal = 4'b0110;
+	end
+
+	//MOVZ (2)
+	else if(state == 9'd69) begin
+		nextState = 9'd1;
+		if(aluCarryFlags[0]) begin
+			regFileRW=1;
+		end
+	end
+
+	//MTHI
+	else if(state == 9'd70) begin
+		nextState = 9'd1;
+		aluOperation = 4'b1110;
+		regFileRS = instruction[25:21];
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=0;
+		ramMFA=0;
+		regFileRW=0;
+	end
+
+	//MTLO
+	else if(state == 9'd71) begin
+		nextState = 9'd1;
+		aluOperation = 4'b1111;
+		regFileRS = instruction[25:21];
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=0;
+		ramMFA=0;
+		regFileRW=0;
+	end
+
+	//BEQ
+	else if(state == 9'd74) begin
+		nextState = 9'd1;
+		aluOperation = 4'b1101;
+		cmpsignal = 4'b1000;
+		if(aluCarryFlags[0]) begin
+			jmp = 1;
+			nextPC = currentPC + (4 * instruction[15:0]);
+		end
+	end 
+
+	//BGEZ
+	else if(state == 9'd75) begin
+		nextState = 9'd1;
+		aluOperation = 4'b1101;
+		cmpsignal = 4'b0111;
+		if(aluCarryFlags[0]) begin
+			jmp = 1;
+			nextPC = currentPC + (4 * instruction[15:0]);
+		end
+	end
+
+	//BGEZAL (1)
+	else if(state == 9'd76) begin
+		aluOperation = 4'b1101;
+		cmpsignal = 4'b0111;
+		if(aluCarryFlags[0]) begin
+			nextState = 9'd77;
+			jmp = 1;
+			nextPC = currentPC + (4 * instruction[15:0]);
+		end
+		else begin
+			nextState = 9'd1;
+		end
+	end 
+
+	//BGEZAL (2)
+	else if(state == 9'd77) begin
+		nextState = 9'd1;
+		aluOperation = 4'b1011;
+		muxSignals = 2'b11;
+		regFileRD = 5'd31;
+		muxSignals3 = 2'b00;
+		regFileRW = 1;
+	end
+
+	// nextPC[31:28] = currentPC[31:28];
+	// nextPC[27:0] = instruction[25:0]*4;
 
 	else if(instruction === 32'bx) begin
 		$display("Invalid instruction: Undefined");

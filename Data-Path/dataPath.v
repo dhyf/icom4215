@@ -46,7 +46,7 @@ wire [3:0] wire9; //Alu to CU carryFlags
 wire [31:0] wire10; //Sign extender to mux1(1)
 wire [31:0] wire11; //Ram data out to mux2(1), ir
 wire [31:0] wire12; //MDR output to mux1(2), RAM data in
-wire [31:0] wire13; //PC out to mux1(3)
+wire [31:0] wire13; //PC out to mux1(3) and CU currentPC
 wire [1:0] wire14; //CU to mux1 selector
 wire wire15; //CU to PC enable
 wire wire16; //CU to PC clear
@@ -87,7 +87,7 @@ controlUnit cu (wire40,wire39,wire38,wire32,wire23,wire16,wire22,wire19,wire20,w
 		wire7,wire8,wire37,wire35,wire36,
 		wire33,wire15,wire25,wire30,
 		wire27,wire14,wire28,wire18,wire24,wire9,wire34,reset,
-		hardwareInterrupt,maskableInterrupt,Clk);
+		hardwareInterrupt,maskableInterrupt,Clk,wire13);
 // controlUnit cu (trapMux,signExtend,clearPC,regFileRW,regFileRD,regFileRS,regFileRT,
 // 	aluSign,aluOperation,ramDataSize,ramMFA,ramRW,
 // 	ramAddress,regFileEnable,pcEnable,irEnable,marEnable,
