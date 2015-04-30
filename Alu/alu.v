@@ -61,7 +61,10 @@ always @ (operation, A, B, sign, cmpsignal) begin
 	4'b1100: assign Y = (A ^ B);
 	//Comparator
 	4'b1101: assign Y = cmpResult;
-	default: assign Y = Y; //Cualquier opcion diferente devuelve la misma entrada
+	//Move to Hi
+	4'b1110: assign outHi = A;
+	//Move to Lo
+	4'b1111: assign outLo = A;
 	endcase
 
 end
