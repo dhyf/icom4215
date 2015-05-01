@@ -28,7 +28,7 @@ module alu(output reg  [31:0] Y, outHI, outLO, output [3:0] carryFlag, input [3:
   	divU div(divisionHI, divisionLO, sign, A, B);
   	adder addSub(addSubResult,carryFlag,A,B,sign);
   	lui luiModule(luiOutput,A);
-  	comparator cmp(cmpResult, A,B, cmpsignal);
+  	comparator cmp(cmpResult, carryFlag, A,B, cmpsignal);
 
 always @ (operation, A, B, sign, cmpsignal) begin
 
