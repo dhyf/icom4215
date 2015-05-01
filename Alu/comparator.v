@@ -24,6 +24,7 @@ module comparator(output reg [31:0] regDestination, output reg [3:0] carryFlag, 
 	reg signed [31:0] signedB;
 	reg [31:0]counter, cloCounter;
 	reg flag;
+	reg [3:0] carryflag;
 	integer index, i;
 
 always @ (A,B,instToDo) begin
@@ -110,14 +111,14 @@ always @ (A,B,instToDo) begin
 
 
 	//A >= 0 BGEZ, BGEZAL   instToDo = 0111
-		if(instToDo = 4'd7)begin		
+		if(instToDo == 4'd7)begin		
 			 if(A>=32'd0) begin
 				carryflag = 4'b0001;
 		 	 end
 		 end
 
 	//A==B BEQ, TEQ   instToDo = 1000
-		if(instToDo = 4'd8)begin		
+		if(instToDo == 4'd8)begin		
 			 if(A==B) begin
 				carryflag[0] = 1;
 		 	 end
@@ -128,28 +129,28 @@ always @ (A,B,instToDo) begin
 		 end
 
 	//A < 0  BLTZ, BLTZAL instToDo = 1001
-		if(instToDo = 4'd9)begin		
+		if(instToDo == 4'd9)begin		
 			 if(A < 0) begin
 				carryflag[0] = 1;
 		 	 end
 		 end
 
 	//A > 0 BGTZ instToDo = 1010
-		if(instToDo = 4'd10)begin		
+		if(instToDo == 4'd10)begin		
 			 if(A > 0) begin
 				carryflag[0] = 1;
 		 	 end
 		 end		
 
 	//A <= 0 BLEZ instToDo = 1011
-		if(instToDo = 4'd11)begin		
+		if(instToDo == 4'd11)begin		
 			 if(A <= 0) begin
 				carryflag[0] = 1;
 		 	 end
 		 end 
 
 	//A != 0 BNE, TNE instToDo = 1100
-		if(instToDo = 4'd12)begin		
+		if(instToDo == 4'd12)begin		
 			 if(A != B) begin
 				carryflag[0] = 1;
 		 	 end
