@@ -207,10 +207,28 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 				nextState=9'd71; //mtlo
 			end
 			else if(functionCode == 6'b001001) begin
-				nextState=9'd85; //jalr
+				nextState=9'd86; //jalr
 			end
 			else if(functionCode == 6'b001000) begin
-				nextState=9'd87; //jr
+				nextState=9'd88; //jr
+			end
+			else if(functionCode == 6'b110100) begin
+				nextState=9'd91; //teq
+			end
+			else if(functionCode == 6'b110000) begin
+				nextState=9'd92; //tge
+			end
+			else if(functionCode == 6'b110001) begin
+				nextState=9'd93; //tgeu
+			end
+			else if(functionCode == 6'b110010) begin
+				nextState=9'd94; //tlt
+			end
+			else if(functionCode == 6'b110011) begin
+				nextState=9'd95; //tltu
+			end
+			else if(functionCode == 6'b110110) begin
+				nextState=9'd96; //tne
 			end
 			else begin
 				$display("Invalid instruction: function code not found"); //function code not found
@@ -323,13 +341,13 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 			end
 		end
 		else if(opcode == 6'b000101) begin
-			nextState = 9'd82; //bne
+			nextState = 9'd83; //bne
 		end
 		else if(opcode == 6'b000010) begin
-			nextState = 9'd83; //j
+			nextState = 9'd84; //j
 		end
 		else if(opcode == 6'b000011) begin
-			nextState = 9'd84; //jal
+			nextState = 9'd85; //jal
 		end
 		else begin
 			$display("Invalid instruction: opcode not found"); //Opcode not found
@@ -1413,6 +1431,8 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		nextState = 9'd1;
 		aluOperation = 4'b1101;
 		cmpsignal = 4'b1000;
+		regFileRS = instruction[25:21];
+		regFileRT = instruction[20:16];
 		if(aluCarryFlags[0]) begin
 			jmp = 1;
 			nextPC = currentPC + (4 * instruction[15:0]);
@@ -1423,6 +1443,7 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 	else if(state == 9'd75) begin
 		nextState = 9'd1;
 		aluOperation = 4'b1101;
+		regFileRS = instruction[25:21];
 		cmpsignal = 4'b0111;
 		if(aluCarryFlags[0]) begin
 			jmp = 1;
@@ -1433,6 +1454,7 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 	//BGEZAL (1)
 	else if(state == 9'd76) begin
 		aluOperation = 4'b1101;
+		regFileRS = instruction[25:21];
 		cmpsignal = 4'b0111;
 		if(aluCarryFlags[0]) begin
 			nextState = 9'd77;
@@ -1454,8 +1476,290 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		regFileRW = 1;
 	end
 
-	// nextPC[31:28] = currentPC[31:28];
-	// nextPC[27:0] = instruction[25:0]*4;
+	//BGTZ
+	else if(state == 9'd78) begin
+		nextState = 9'd1;
+		aluOperation = 4'b1101;
+		regFileRS = instruction[25:21];
+		cmpsignal = 4'b1010;
+		if(aluCarryFlags[0]) begin
+			jmp = 1;
+			nextPC = currentPC + (4 * instruction[15:0]);
+		end
+	end
+
+	//BLEZ
+	else if(state == 9'd79) begin
+		nextState = 9'd1;
+		aluOperation = 4'b1101;
+		regFileRS = instruction[25:21];
+		cmpsignal = 4'b1011;
+		if(aluCarryFlags[0]) begin
+			jmp = 1;
+			nextPC = currentPC + (4 * instruction[15:0]);
+		end
+	end
+
+	//BLTZ
+	else if(state == 9'd80) begin
+		nextState = 9'd1;
+		aluOperation = 4'b1101;
+		regFileRS = instruction[25:21];
+		cmpsignal = 4'b1001;
+		if(aluCarryFlags[0]) begin
+			jmp = 1;
+			nextPC = currentPC + (4 * instruction[15:0]);
+		end
+	end
+
+	//BLTZAL (1)
+	else if(state == 9'd81) begin
+		nextState = 9'd82;
+		aluOperation = 4'b1101;
+		regFileRS = instruction[25:21];
+		cmpsignal = 4'b1001;
+		if(aluCarryFlags[0]) begin
+			jmp = 1;
+			nextPC = currentPC + (4 * instruction[15:0]);
+		end
+	end
+
+	//BLTZAL (2)
+	else if(state == 9'd82) begin
+		nextState = 9'd1;
+		aluOperation = 4'b1011;
+		muxSignals = 2'b11;
+		regFileRD = 5'd31;
+		muxSignals3 = 2'b00;
+		regFileRW = 1;
+	end
+
+	//BNE
+	else if(state == 9'd83) begin
+		nextState = 9'd1;
+		aluOperation = 4'b1101;
+		regFileRS = instruction[25:21];
+		regFileRS = instruction[25:21];
+		cmpsignal = 4'b1100;
+		if(aluCarryFlags[0]) begin
+			jmp = 1;
+			nextPC = currentPC + (4 * instruction[15:0]);
+		end
+	end
+
+	//J
+	else if(state == 9'd84) begin
+		nextState = 9'd1;
+		jmp = 1;
+		nextPC[31:28] = currentPC[31:28];
+		nextPC[27:0] = instruction[25:0]*4;
+	end
+
+	//JAL
+	else if(state == 9'd85) begin
+		nextState = 9'd1;
+		aluOperation = 4'b1011;
+		muxSignals = 2'b11;
+		regFileRD = 5'd31;
+		nextPC[31:28] = currentPC[31:28];
+		nextPC[27:0] = instruction[25:0]*4;
+		muxSignals3 = 2'b00;
+		regFileRW = 1;
+		jmp = 1;
+	end
+
+	//JALR (1)
+	else if(state == 9'd86) begin
+		nextState = 9'd87;
+		aluOperation = 4'b1011;
+		muxSignals = 2'b11;
+		regFileRD = instruction[15:11];
+		muxSignals3 = 2'b00;
+		regFileRW = 1;
+		jmp = 0;
+	end
+
+	//JALR (2)
+	else if(state == 9'd87) begin
+		nextState = 9'd88;
+		aluOperation = 4'b0000;
+		muxSignals = 2'b11;
+		marEnable = 1;
+		regFileRW = 0;
+	end
+
+	//JALR (3)
+	else if(state == 9'd88) begin
+		nextState = 9'd3;
+		aluOperation = 4'b0000;
+		regFileRT = instruction[25:21];
+		muxSignals = 2'b00;
+		marEnable = 0;
+		pcEnable = 1;
+		ramMFA=1;
+		ramRW = 0;
+		trapMux=0;
+		ramDataSize = 2'b11;
+		muxSignals5 = 0;
+	end
+
+	//JR (1)
+	else if(state == 9'd89) begin
+		nextState = 9'd90;
+		aluOperation = 4'b0000;
+		muxSignals = 2'b11;
+		marEnable = 1;
+		regFileRW = 0;
+	end
+
+	//JR (2)
+	else if(state == 9'd90) begin
+		nextState = 9'd3;
+		aluOperation = 4'b0000;
+		regFileRT = instruction[25:21];
+		muxSignals = 2'b00;
+		marEnable = 0;
+		pcEnable = 1;
+		ramMFA=1;
+		ramRW = 0;
+		trapMux=0;
+		ramDataSize = 2'b11;
+		muxSignals5 = 0;
+	end
+
+	//TEQ
+	else if(state == 9'd91) begin
+		nextState = 9'd253;
+		aluOperation = 4'b1101;
+		muxSignals = 2'b00;
+		cmpsignal = 4'b1000;
+		regFileRS = instruction[25:21];
+		regFileRT = instruction[20:16];
+		irEnable = 0;
+		pcEnable = 0;
+		marEnable = 0;
+		mdrEnable = 0;
+		ramMFA = 0;
+		regFileRW = 0;
+	end
+
+	//TGE
+	else if(state == 9'd92) begin
+		nextState = 9'd253;
+		aluOperation = 4'b1101;
+		muxSignals = 2'b00;
+		cmpsignal = 4'b1110;
+		regFileRS = instruction[25:21];
+		regFileRT = instruction[20:16];
+		irEnable = 0;
+		pcEnable = 0;
+		marEnable = 0;
+		mdrEnable = 0;
+		ramMFA = 0;
+		regFileRW = 0;
+	end
+
+	//TGEU
+	else if(state == 9'd93) begin
+		nextState = 9'd252;
+		aluOperation = 4'b1101;
+		muxSignals = 2'b00;
+		cmpsignal = 4'b1110;
+		regFileRS = instruction[25:21];
+		regFileRT = instruction[20:16];
+		irEnable = 0;
+		pcEnable = 0;
+		marEnable = 0;
+		mdrEnable = 0;
+		ramMFA = 0;
+		regFileRW = 0;
+	end
+
+	//TLT
+	else if(state == 9'd94) begin
+		nextState = 9'd253;
+		aluOperation = 4'b1101;
+		muxSignals = 2'b00;
+		cmpsignal = 4'b1111;
+		regFileRS = instruction[25:21];
+		regFileRT = instruction[20:16];
+		irEnable = 0;
+		pcEnable = 0;
+		marEnable = 0;
+		mdrEnable = 0;
+		ramMFA = 0;
+		regFileRW = 0;
+	end
+
+	//TLTU
+	else if(state == 9'd95) begin
+		nextState = 9'd252;
+		aluOperation = 4'b1101;
+		muxSignals = 2'b00;
+		cmpsignal = 4'b1111;
+		regFileRS = instruction[25:21];
+		regFileRT = instruction[20:16];
+		irEnable = 0;
+		pcEnable = 0;
+		marEnable = 0;
+		mdrEnable = 0;
+		ramMFA = 0;
+		regFileRW = 0;
+	end
+
+	//TNE
+	else if(state == 9'd96) begin
+		nextState = 9'd253;
+		aluOperation = 4'b1101;
+		muxSignals = 2'b00;
+		cmpsignal = 4'b1100;
+		regFileRS = instruction[25:21];
+		regFileRT = instruction[20:16];
+		irEnable = 0;
+		pcEnable = 0;
+		marEnable = 0;
+		mdrEnable = 0;
+		ramMFA = 0;
+		regFileRW = 0;
+	end
+
+	//Conditional Traps Unsigned
+	else if(state == 9'd252) begin
+		if(aluCarryFlags[3]) begin
+			$display("Conditional Trap Ocurred");
+			nextState=9'd3;
+			irEnable=0;
+			pcEnable=0;
+			marEnable=0;
+			mdrEnable=0;
+			ramRW=0;
+			ramMFA=1;
+			trapMux=1;
+			ramAddress = 9'd432; //Ram address for conditional trap
+		end
+		else begin
+			nextState = 9'd1;
+		end
+	end
+
+	//Conditional Traps Signed
+	else if(state == 9'd253) begin
+		if(aluCarryFlags[2]) begin
+			$display("Conditional Trap Ocurred");
+			nextState=9'd3;
+			irEnable=0;
+			pcEnable=0;
+			marEnable=0;
+			mdrEnable=0;
+			ramRW=0;
+			ramMFA=1;
+			trapMux=1;
+			ramAddress = 9'd432; //Ram address for conditional trap
+		end
+		else begin
+			nextState = 9'd1;
+		end
+	end
 
 	else if(instruction === 32'bx) begin
 		$display("Invalid instruction: Undefined");

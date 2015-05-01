@@ -1,4 +1,4 @@
-module alu(output reg  [31:0] Y, outHI, outLO, output [3:0] carryFlag, input [3:0] operation,input [1:0] sign, input [31:0] A,B, input [3:0] cmpsignal);
+module alu(output reg  [31:0] Y, outHI, outLO, output reg [3:0] carryFlag, input [3:0] operation,input [1:0] sign, input [31:0] A,B, input [3:0] cmpsignal);
 
 
   	//Outputs from modules
@@ -9,6 +9,8 @@ module alu(output reg  [31:0] Y, outHI, outLO, output [3:0] carryFlag, input [3:
   	wire [31:0] addSubResult;
   	wire [31:0] luiOutput;
   	wire [31:0] cmpResult;
+  	wire [3:0] adderCarryFlag;
+  	wire [3:0] compCarryFlag;
 
   	reg [31:0] adderResult;
 
@@ -26,9 +28,9 @@ module alu(output reg  [31:0] Y, outHI, outLO, output [3:0] carryFlag, input [3:
   	//Instances of modules for multiplication, division, addition, substraction and LUI
   	multU mult(productHI, productLO, sign, A, B);
   	divU div(divisionHI, divisionLO, sign, A, B);
-  	adder addSub(addSubResult,carryFlag,A,B,sign);
+  	adder addSub(addSubResult,adderCarryFlag,A,B,sign);
   	lui luiModule(luiOutput,A);
-  	comparator cmp(cmpResult, carryFlag, A,B, cmpsignal);
+  	comparator cmp(cmpResult, compCarryFlag, A,B, cmpsignal);
 
 always @ (operation, A, B, sign, cmpsignal) begin
 
@@ -36,7 +38,7 @@ always @ (operation, A, B, sign, cmpsignal) begin
 	//Pasa valor B a salida
 	4'b0000: assign Y = B;
 	//Sumar o restar (con y sin signo)
-	4'b0001: assign Y = addSubResult;
+	4'b0001: begin assign Y = addSubResult; assign carryFlag = adderCarryFlag; end
 	//Multiplicacion (con y sin signo)
 	4'b0010: begin assign outHI = productHI; assign outLO = productLO; end
 	//Division (con y sin signo)
@@ -60,11 +62,11 @@ always @ (operation, A, B, sign, cmpsignal) begin
 	//XOR logico
 	4'b1100: assign Y = (A ^ B);
 	//Comparator
-	4'b1101: assign Y = cmpResult;
+	4'b1101: begin assign Y = cmpResult; assign carryFlag = compCarryFlag; end
 	//Move to Hi
-	4'b1110: assign outHi = A;
+	4'b1110: assign outHI = A;
 	//Move to Lo
-	4'b1111: assign outLo = A;
+	4'b1111: assign outLO = A;
 	endcase
 
 end

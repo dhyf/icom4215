@@ -1,4 +1,4 @@
-module comparator(output reg [31:0] regDestination, output reg [3:0] carryFlag, input [31:0] A, B, input [2:0] instToDo);
+module comparator(output reg [31:0] regDestination, output reg [3:0] carryFlag, input [31:0] A, B, input [3:0] instToDo);
 
 //  SLT instToDo = 0000
 // SLTU instToDo = 0001
