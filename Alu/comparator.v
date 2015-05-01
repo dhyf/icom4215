@@ -6,15 +6,19 @@ module comparator(output reg [31:0] regDestination, output reg [3:0] carryFlag, 
 //SLTIU instToDo = 0011
 //CLO   instToDo = 0100
 //CLZ   instToDo = 0101
-//*************************v faltan por implementar
 //MOVZ  instToDo = 0110
-//MOVN	instToDo = 0111
-//A>= 0 instToDo = 1000
-//A = B instToDo = 1001
-//A < 0 instToDo = 1010
-//A > 0 instToDo = 1011
-//A<= 0 instToDo = 1100
-//A!= 0 instToDo = 1101
+//A>= 0 instToDo = 0111
+//A = B instToDo = 1000
+//A < 0 instToDo = 1001
+//A > 0 instToDo = 1010
+//A<= 0 instToDo = 1011
+//A!= 0 instToDo = 1100
+//MOVN	instToDo = 1101
+//A >=B instToDo = 1110
+// A <B instToDo = 1111
+
+//rs = A y rt = B
+
 
 	reg signed [31:0] signedA;
 	reg signed [31:0] signedB;
@@ -32,7 +36,7 @@ always @ (A,B,instToDo) begin
 	flag = 0;
 	carryFlag = 0;
 	//  SLT instToDo = 0000******************************************
-		if (instToDo == 3'd0)
+		if (instToDo == 4'd0)
 		 begin
 			if(A<B)
 			 regDestination = 32'b1;
@@ -43,7 +47,7 @@ always @ (A,B,instToDo) begin
 		 end
 
 	// SLTU instToDo = 0001******************************************
-		if (instToDo == 3'd1)
+		if (instToDo == 4'd1)
 		 begin
 			if(A<B)begin
 			 	regDestination = 32'd1;
@@ -54,7 +58,7 @@ always @ (A,B,instToDo) begin
 		 end
 
 	// SLTI instToDo = 0010******************************************
-		if(instToDo == 3'd2)
+		if(instToDo == 4'd2)
 		 begin
 		 	if(signedA<signedB)
 		 	 regDestination = 32'd1;
@@ -64,7 +68,7 @@ always @ (A,B,instToDo) begin
 		 end
 
 	//SLTIU instToDo = 0011******************************************
-		if(instToDo == 3'd3)
+		if(instToDo == 4'd3)
 		 begin
 		 	if(A<B)
 		 	 regDestination = 32'd1;
@@ -74,11 +78,11 @@ always @ (A,B,instToDo) begin
 		 end
 
 	//CLO   instToDo = 0100******************************************
-		if(instToDo == 32'd4)
+		if(instToDo == 4'd4)
 		 begin
 		 	while(A[index] == 1'b1)
 		 	 begin
-		 		$display("im here");
+		 		//$display("im here");
 				counter = counter +32'd1;
 		 		index = index -1;
 		 	 end
@@ -86,7 +90,7 @@ always @ (A,B,instToDo) begin
 		 end
 
 	//CLZ   instToDo = 0101******************************************
-		if(instToDo == 32'd5)
+		if(instToDo == 4'd5)
 		 begin
 		 	while(A[index] == 0)
 		 	 begin
@@ -97,7 +101,7 @@ always @ (A,B,instToDo) begin
 		 end
 
 	//MOVZ   instToDo = 0110
-		if(instToDo == 32'd6) begin
+		if(instToDo == 4'd6) begin
 			 if(B==32'd0) begin
 				regDestination = A;
 				carryflag = 4'b0001;
@@ -106,57 +110,83 @@ always @ (A,B,instToDo) begin
 
 
 	//A >= 0 BGEZ, BGEZAL   instToDo = 0111
-		if(instToDo = 32'd7)begin		
+		if(instToDo = 4'd7)begin		
 			 if(A>=32'd0) begin
 				carryflag = 4'b0001;
 		 	 end
 		 end
 
-	//A==B BEQ   instToDo = 1000
-		if(instToDo = 32'd8)begin		
+	//A==B BEQ, TEQ   instToDo = 1000
+		if(instToDo = 4'd8)begin		
 			 if(A==B) begin
-				carryflag = 4'b0001;
+				carryflag[0] = 1;
+		 	 end
+
+		 	 if(signedA==signedB)begin
+		 	 	carryFlag[2] = 1;
 		 	 end
 		 end
 
 	//A < 0  BLTZ, BLTZAL instToDo = 1001
-		if(instToDo = 32'd9)begin		
+		if(instToDo = 4'd9)begin		
 			 if(A < 0) begin
-				carryflag = 4'b0001;
+				carryflag[0] = 1;
 		 	 end
 		 end
 
 	//A > 0 BGTZ instToDo = 1010
-		if(instToDo = 32'd10)begin		
+		if(instToDo = 4'd10)begin		
 			 if(A > 0) begin
-				carryflag = 4'b0001;
+				carryflag[0] = 1;
 		 	 end
 		 end		
 
 	//A <= 0 BLEZ instToDo = 1011
-		if(instToDo = 32'd11)begin		
+		if(instToDo = 4'd11)begin		
 			 if(A <= 0) begin
-				carryflag = 4'b0001;
+				carryflag[0] = 1;
 		 	 end
 		 end 
 
-	//A != 0 BNE instToDo = 1100
-		if(instToDo = 32'd12)begin		
-			 if(A != 0) begin
-				carryflag = 4'b0001;
+	//A != 0 BNE, TNE instToDo = 1100
+		if(instToDo = 4'd12)begin		
+			 if(A != B) begin
+				carryflag[0] = 1;
+		 	 end
+
+		 	 if(signedA != signedB) begin
+				carryflag[0] = 1;
 		 	 end
 		 end 
 
 	//MOVN	instToDo = 1101
-		if(instToDo == 32'd13) begin
+		if(instToDo == 4'd13) begin
 			if(B != 32'd0) begin
-				regDestination`= A;
-				carryflag = 4'b0001;
+				regDestination= A;
+				carryflag[0] = 1;
 			end
 		 end
 
+	//A >= B TGE, TGEU instToDo = 1110
+		if(instToDo == 4'd14)begin
+			if(signedA>=signedB)begin
+				carryflag[2] = 1;
+			end
 
+			if(A>=B)begin
+				carryflag[3] = 1;
+			end
+		end
+
+	// A < B TLT, TLTU instToDo = 1111
+		if(instToDo == 4'd15)begin
+			if(signedA<signedB)begin
+				carryflag[2] = 1;
+			end
+
+			if(A<B)begin
+				carryflag[3] = 1;
+			end
+		 end
  end
 endmodule
-//rs = A y rt = B
-
