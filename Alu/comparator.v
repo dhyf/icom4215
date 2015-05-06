@@ -24,10 +24,11 @@ module comparator(output reg [31:0] regDestination, output reg [3:0] carryFlag, 
 	reg signed [31:0] signedB;
 	reg [31:0]counter, cloCounter;
 	reg flag;
-	reg [3:0] carryflag;
 	integer index, i;
 
 always @ (A,B,instToDo) begin
+
+	$display("Comparator: %d",instToDo);
 
 	counter = 32'd0;
 	cloCounter = 32'd0;
@@ -105,7 +106,7 @@ always @ (A,B,instToDo) begin
 		if(instToDo == 4'd6) begin
 			 if(B==32'd0) begin
 				regDestination = A;
-				carryflag = 4'b0001;
+				carryFlag = 4'b0001;
 			 end
 	 	 end
 
@@ -113,14 +114,14 @@ always @ (A,B,instToDo) begin
 	//A >= 0 BGEZ, BGEZAL   instToDo = 0111
 		if(instToDo == 4'd7)begin		
 			 if(A>=32'd0) begin
-				carryflag = 4'b0001;
+				carryFlag = 4'b0001;
 		 	 end
 		 end
 
 	//A==B BEQ, TEQ   instToDo = 1000
 		if(instToDo == 4'd8)begin		
 			 if(A==B) begin
-				carryflag[0] = 1;
+				carryFlag[0] = 1;
 		 	 end
 
 		 	 if(signedA==signedB)begin
@@ -131,32 +132,32 @@ always @ (A,B,instToDo) begin
 	//A < 0  BLTZ, BLTZAL instToDo = 1001
 		if(instToDo == 4'd9)begin		
 			 if(A < 0) begin
-				carryflag[0] = 1;
+				carryFlag[0] = 1;
 		 	 end
 		 end
 
 	//A > 0 BGTZ instToDo = 1010
 		if(instToDo == 4'd10)begin		
-			 if(A > 0) begin
-				carryflag[0] = 1;
+			 if(A > 0 && A[31] == 0) begin
+				carryFlag[0] = 1;
 		 	 end
 		 end		
 
 	//A <= 0 BLEZ instToDo = 1011
 		if(instToDo == 4'd11)begin		
 			 if(A <= 0) begin
-				carryflag[0] = 1;
+				carryFlag[0] = 1;
 		 	 end
 		 end 
 
 	//A != 0 BNE, TNE instToDo = 1100
 		if(instToDo == 4'd12)begin		
 			 if(A != B) begin
-				carryflag[0] = 1;
+				carryFlag[0] = 1;
 		 	 end
 
 		 	 if(signedA != signedB) begin
-				carryflag[0] = 1;
+				carryFlag[0] = 1;
 		 	 end
 		 end 
 
@@ -164,29 +165,29 @@ always @ (A,B,instToDo) begin
 		if(instToDo == 4'd13) begin
 			if(B != 32'd0) begin
 				regDestination= A;
-				carryflag[0] = 1;
+				carryFlag[0] = 1;
 			end
 		 end
 
 	//A >= B TGE, TGEU instToDo = 1110
 		if(instToDo == 4'd14)begin
 			if(signedA>=signedB)begin
-				carryflag[2] = 1;
+				carryFlag[2] = 1;
 			end
 
 			if(A>=B)begin
-				carryflag[3] = 1;
+				carryFlag[3] = 1;
 			end
 		end
 
 	// A < B TLT, TLTU instToDo = 1111
 		if(instToDo == 4'd15)begin
 			if(signedA<signedB)begin
-				carryflag[2] = 1;
+				carryFlag[2] = 1;
 			end
 
 			if(A<B)begin
-				carryflag[3] = 1;
+				carryFlag[3] = 1;
 			end
 		 end
  end

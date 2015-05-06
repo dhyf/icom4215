@@ -68,16 +68,14 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		trapMux=0;
 		ramMFA=0;
 		regFileRW=0;
+		muxSignals5 = 0;
 	end
 
 	else if(state == 9'd2) begin
-		$display("Inside state 2, aluOperation: %b",aluOperation);
+		$display("Inside state 2, aluOperation: %b, will jump? %b, aluCarryFlags=%b",aluOperation,jmp,aluCarryFlags);
 		if(jmp) begin
 			muxSignals5 = 1;
 			jmp = 0;
-		end
-		else begin
-			muxSignals5 = 0;
 		end
 		nextState=9'd3;
 		aluOperation=4'b1011;
@@ -91,10 +89,10 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		regFileRW=0;
 		trapMux=0;
 		ramDataSize = 2'b11;
-		muxSignals5=0;
 	end
 
 	else if(state == 9'd3) begin
+		muxSignals5 = 0;
 		pcEnable=0;
 		regFileRW=0;
 		ramDataSize = 2'b11;
@@ -858,6 +856,24 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		regFileRW=1;
 	end
 
+	//SLL
+	else if(state == 9'd32) begin
+		$display("SLL: Inside state 32");
+		nextState = 9'd1;
+		aluOperation = 4'b1000;
+		muxSignals = 2'b00;
+		regFileRS = 5'b0;
+		regFileRT = instruction[20:16];
+		regFileRD = instruction[15:11];
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=0;
+		ramMFA=0;
+		muxSignals3=2'b00;
+		regFileRW=1;
+	end
+
 	//LW (load word) (1)
 	else if(state == 9'd35) begin
 		nextState = 9'd36;
@@ -1120,6 +1136,7 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 
 	//LBU (load byte unsigned) (1)
 	else if(state == 9'd51) begin
+		$display("LBU: Inside state 51");
 		nextState = 9'd52;
 		aluOperation = 4'b0001;
 		muxSignals = 2'b01;
@@ -1428,14 +1445,18 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 
 	//BEQ
 	else if(state == 9'd74) begin
+		$display("BEQ / B: Inside state 74");
 		nextState = 9'd1;
+		muxSignals = 2'b00;
 		aluOperation = 4'b1101;
 		cmpsignal = 4'b1000;
 		regFileRS = instruction[25:21];
 		regFileRT = instruction[20:16];
 		if(aluCarryFlags[0]) begin
 			jmp = 1;
-			nextPC = currentPC + (4 * instruction[15:0]);
+			nextPC = currentPC + $signed(4 * instruction[15:0]);
+			nextPC[31:9] = 23'b0;
+			$display("nextPC=%d",nextPC);
 		end
 	end 
 
@@ -1478,13 +1499,16 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 
 	//BGTZ
 	else if(state == 9'd78) begin
+		$display("BGTZ: Inside state 78");
 		nextState = 9'd1;
 		aluOperation = 4'b1101;
 		regFileRS = instruction[25:21];
 		cmpsignal = 4'b1010;
 		if(aluCarryFlags[0]) begin
 			jmp = 1;
-			nextPC = currentPC + (4 * instruction[15:0]);
+			nextPC = currentPC + $signed(4 * instruction[15:0]);
+			nextPC[31:9] = 23'b0;
+			$display("nextPC=%d",nextPC);
 		end
 	end
 

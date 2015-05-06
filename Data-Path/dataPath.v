@@ -32,7 +32,15 @@ always @ (wire13, wire41, wire15) begin
 	$display("PC Status OUT=%d IN=%d EN=%b", wire13, wire41, wire15);
 end
 
-initial #200 $finish;
+always @ (wire10) begin
+	$display("Sign extender output: %h",wire10);
+end
+
+always @ (wire39, wire40) begin
+	$display("nextPC(1)=%d nextPC(S)=%b",wire40,wire39);
+end
+
+initial #600 $finish;
 
 wire [31:0] wire1; //Alu LO to Mux 3
 wire [31:0] wire2; //Alu Y to Mux 3, nextPC(0), Mux2, MAR

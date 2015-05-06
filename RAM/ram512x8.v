@@ -30,12 +30,12 @@ reg [7:0] data;
 
 initial begin
 	$display("Loading test program to RAM...");
-	fd = $fopen("testProgram.dat","r"); 
+	fd = $fopen("testcode_mips1.txt","r"); 
 	index = 0;
 	while (!($feof(fd))) begin
 		code = $fscanf(fd, "%b", data);
 		Mem[index]=data;
-		$display("Reading from file=%b, Memory Content=%b",data,Mem[index]);
+		$display("%d Reading from file=%b, Memory Content=%b",index,data,Mem[index]);
 		index = index + 1;
 	end
   	$fclose(fd);
@@ -106,7 +106,7 @@ if(memFuncActive) begin
 
 	else begin
 		
-		$display("Reading from address: %b", address);
+		$display("Reading from address: %b\t%d", address,address);
 
 		//Reading a word (4 bytes)
 		if(dataSize == 3) begin
@@ -124,8 +124,8 @@ if(memFuncActive) begin
 		//Reading a halfword (2 bytes)
 		if(dataSize == 1) begin
 			$display("Reading a halfword");
-			// dataOut[31:24] = 8'b0;
-			// dataOut[23:16] = 8'b0;
+			dataOut[31:24] = 8'b0;
+			dataOut[23:16] = 8'b0;
 			$display("Reading halfword byte 0: %h", Mem[address]);
 			dataOut[15:8] = Mem[address];
 			$display("Reading halfword byte 1: %h", Mem[address+1]);
@@ -135,9 +135,9 @@ if(memFuncActive) begin
 		//Reading a single byte
 		if(dataSize == 0) begin
 			$display("Reading a byte");
-			// dataOut[31:24] = 8'b0;
-			// dataOut[23:16] = 8'b0;
-			// dataOut[15:8] = 8'b0;
+			dataOut[31:24] = 8'b0;
+			dataOut[23:16] = 8'b0;
+			dataOut[15:8] = 8'b0;
 			$display("Reading byte 0: %h", Mem[address]);
 			dataOut[7:0] = Mem[address];
 		end

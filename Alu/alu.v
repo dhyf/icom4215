@@ -80,4 +80,8 @@ always @ (outHI, outLO) begin
 	$display("ALU HI=%h LO=%h after operation %b with Y=%d A=%d B=%d",outHI,outLO,operation,Y,A,B);
 end
 
+always @ (carryFlag) begin
+	$display("CarryFlags=%b",carryFlag);
+end
+
 endmodule

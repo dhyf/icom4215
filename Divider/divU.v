@@ -22,7 +22,7 @@ module divU(output reg [31:0] divisionHIRes, // Register where the quotioent of 
 
     if(divisor == 32'h0) begin
       //Trap will be generated here in case of division by 0
-      $display("Trap: Division by 0");
+      //$display("Trap: Division by 0");
     end
 
     else begin
