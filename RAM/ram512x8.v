@@ -149,4 +149,14 @@ if(memFuncActive) begin
 
 end
 
+initial #500 begin
+	$display("Memory content after execution...");
+	index = 0;
+	while (index < 56) begin
+		$display("%d Memory Content Binary=%b Decimal=%d",index,Mem[index],Mem[index]);
+		index = index + 1;
+	end
+  	$display("Execution complete");
+end
+
 endmodule

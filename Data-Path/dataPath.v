@@ -40,7 +40,7 @@ always @ (wire39, wire40) begin
 	$display("nextPC(1)=%d nextPC(S)=%b",wire40,wire39);
 end
 
-initial #600 $finish;
+initial #500 $finish;
 
 wire [31:0] wire1; //Alu LO to Mux 3
 wire [31:0] wire2; //Alu Y to Mux 3, nextPC(0), Mux2, MAR

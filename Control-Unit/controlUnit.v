@@ -1468,7 +1468,9 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		cmpsignal = 4'b0111;
 		if(aluCarryFlags[0]) begin
 			jmp = 1;
-			nextPC = currentPC + (4 * instruction[15:0]);
+			nextPC = currentPC + $signed(4 * instruction[15:0]);
+			nextPC[31:9] = 23'b0;
+			$display("nextPC=%d",nextPC);
 		end
 	end
 
@@ -1480,7 +1482,9 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		if(aluCarryFlags[0]) begin
 			nextState = 9'd77;
 			jmp = 1;
-			nextPC = currentPC + (4 * instruction[15:0]);
+			nextPC = currentPC + $signed(4 * instruction[15:0]);
+			nextPC[31:9] = 23'b0;
+			$display("nextPC=%d",nextPC);
 		end
 		else begin
 			nextState = 9'd1;
@@ -1520,7 +1524,9 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		cmpsignal = 4'b1011;
 		if(aluCarryFlags[0]) begin
 			jmp = 1;
-			nextPC = currentPC + (4 * instruction[15:0]);
+			nextPC = currentPC + $signed(4 * instruction[15:0]);
+			nextPC[31:9] = 23'b0;
+			$display("nextPC=%d",nextPC);
 		end
 	end
 
@@ -1532,7 +1538,9 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		cmpsignal = 4'b1001;
 		if(aluCarryFlags[0]) begin
 			jmp = 1;
-			nextPC = currentPC + (4 * instruction[15:0]);
+			nextPC = currentPC + $signed(4 * instruction[15:0]);
+			nextPC[31:9] = 23'b0;
+			$display("nextPC=%d",nextPC);
 		end
 	end
 
@@ -1544,7 +1552,9 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		cmpsignal = 4'b1001;
 		if(aluCarryFlags[0]) begin
 			jmp = 1;
-			nextPC = currentPC + (4 * instruction[15:0]);
+			nextPC = currentPC + $signed(4 * instruction[15:0]);
+			nextPC[31:9] = 23'b0;
+			$display("nextPC=%d",nextPC);
 		end
 	end
 
@@ -1567,7 +1577,9 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		cmpsignal = 4'b1100;
 		if(aluCarryFlags[0]) begin
 			jmp = 1;
-			nextPC = currentPC + (4 * instruction[15:0]);
+			nextPC = currentPC + $signed(4 * instruction[15:0]);
+			nextPC[31:9] = 23'b0;
+			$display("nextPC=%d",nextPC);
 		end
 	end
 
@@ -1786,7 +1798,7 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 	end
 
 	else if(instruction === 32'bx) begin
-		$display("Invalid instruction: Undefined");
+		//$display("Invalid instruction: Undefined");
 		nextState = 9'd1;
 	end
 

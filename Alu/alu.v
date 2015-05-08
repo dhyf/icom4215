@@ -44,17 +44,17 @@ always @ (operation, A, B, sign, cmpsignal) begin
 	//Division (con y sin signo)
 	4'b0011: begin assign outHI = divisionHI; assign outLO = divisionLO; end
 	//AND logico
-	4'b0100: Y <= A & B;
+	4'b0100: assign Y = A & B;
 	//OR logico
-	4'b0101: Y <= A | B;
+	4'b0101: assign Y = A | B;
 	//NOR logico
-	4'b0110: Y <= ~(A | B);
+	4'b0110: assign Y = ~(A | B);
 	//Shift logico a la derecha
-	4'b0111: Y = (B>>A);
+	4'b0111: assign Y = (B>>A);
 	//Shift lofico a la izquierda
-	4'b1000: Y = (B<<A);
+	4'b1000: assign Y = (B<<A);
 	//Shift aritmetico a la derecha
-	4'b1001: Y = $signed(B) >>> A;
+	4'b1001: assign Y = $signed(B) >>> A;
 	//LUI
 	4'b1010: assign Y = luiOutput;
 	//add 4
