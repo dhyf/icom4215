@@ -30,7 +30,7 @@ reg [7:0] data;
 
 initial begin
 	$display("Loading test program to RAM...");
-	fd = $fopen("testcode_mips1.txt","r"); 
+	fd = $fopen("testcode_mips2.txt","r"); 
 	index = 0;
 	while (!($feof(fd))) begin
 		code = $fscanf(fd, "%b", data);
@@ -74,7 +74,7 @@ if(memFuncActive) begin
 		if(dataSize == 3) begin
 			$display("Writing a word");
 			currentAddress = address;
-			for(i = 3; i >= 0; i = i - 1) begin
+			for(i = 0; i <= 3; i = i + 1) begin
 				Mem[currentAddress] = dataByte[i];
 				$display("Writing byte %h in address %d", dataByte[i], currentAddress);
 				currentAddress = currentAddress + 1;
@@ -149,10 +149,10 @@ if(memFuncActive) begin
 
 end
 
-initial #500 begin
+initial #1500 begin
 	$display("Memory content after execution...");
 	index = 0;
-	while (index < 56) begin
+	while (index < 268) begin
 		$display("%d Memory Content Binary=%b Decimal=%d",index,Mem[index],Mem[index]);
 		index = index + 1;
 	end

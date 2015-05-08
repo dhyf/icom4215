@@ -2,7 +2,7 @@ module controlUnit (output reg [31:0] nextPC,
 					output reg muxSignals5,
 					output reg [3:0] cmpsignal,
 					output reg trapMux,
-					output reg signExtend, //Sign extension for imm16 1=y 0=n, x otherwise
+					output reg [1:0] signExtend, //Sign extension for imm16 1=y 0=n, x otherwise
 					output reg clearPC, //Used for reset
 					output reg regFileRW,
 					output reg [4:0] regFileRD,regFileRS,regFileRT,
@@ -871,6 +871,42 @@ always @ (instruction, aluCarryFlags, ramMFC, reset,hardwareInterrupt,maskableIn
 		mdrEnable=0;
 		ramMFA=0;
 		muxSignals3=2'b00;
+		regFileRW=1;
+	end
+
+	//SRA
+	else if(state == 9'd33) begin
+		$display("SRA: Inside state 33");
+		nextState = 9'd1;
+		aluOperation = 4'b1001;
+		muxSignals = 2'b01;
+		regFileRS = instruction[20:16];
+		regFileRD = instruction[15:11];
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=0;
+		ramMFA=0;
+		muxSignals3=2'b00;
+		signExtend = 2'b10;
+		regFileRW=1;
+	end
+
+	//SRL
+	else if(state == 9'd34) begin
+		$display("SRL: Inside state 34");
+		nextState = 9'd1;
+		aluOperation = 4'b0111;
+		muxSignals = 2'b01;
+		regFileRS = instruction[20:16];
+		regFileRD = instruction[15:11];
+		irEnable=0;
+		pcEnable=0;
+		marEnable=0;
+		mdrEnable=0;
+		ramMFA=0;
+		muxSignals3=2'b00;
+		signExtend = 2'b10;
 		regFileRW=1;
 	end
 

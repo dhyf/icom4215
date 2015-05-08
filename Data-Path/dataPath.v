@@ -40,7 +40,7 @@ always @ (wire39, wire40) begin
 	$display("nextPC(1)=%d nextPC(S)=%b",wire40,wire39);
 end
 
-initial #500 $finish;
+initial #6000 $finish;
 
 wire [31:0] wire1; //Alu LO to Mux 3
 wire [31:0] wire2; //Alu Y to Mux 3, nextPC(0), Mux2, MAR
@@ -64,7 +64,7 @@ wire [4:0] wire19; //CU to register file (RD)
 wire [4:0] wire20; //CU to register file (RS)
 wire [4:0] wire21; //CU to register file (RT)
 wire wire22; //CU to register file (RW)
-wire wire23; //CU to sign extender (mux4) selector
+wire [1:0] wire23; //CU to sign extender (mux4) selector
 wire [31:0] wire24; //IR to sign extender, CU
 wire wire25; //CU to IR enable
 wire [31:0] wire26; //Mux2 out to MDR

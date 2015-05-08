@@ -50,11 +50,11 @@ always @ (operation, A, B, sign, cmpsignal) begin
 	//NOR logico
 	4'b0110: assign Y = ~(A | B);
 	//Shift logico a la derecha
-	4'b0111: assign Y = (B>>A);
+	4'b0111: assign Y = (A>>B);
 	//Shift lofico a la izquierda
-	4'b1000: assign Y = (B<<A);
+	4'b1000: assign Y = (A<<B);
 	//Shift aritmetico a la derecha
-	4'b1001: assign Y = $signed(B) >>> A;
+	4'b1001: assign Y = $signed(A) >>> B;
 	//LUI
 	4'b1010: assign Y = luiOutput;
 	//add 4
