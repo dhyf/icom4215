@@ -149,7 +149,7 @@ if(memFuncActive) begin
 
 end
 
-initial #1500 begin
+initial #6000 begin
 	$display("Memory content after execution...");
 	index = 0;
 	while (index < 268) begin
